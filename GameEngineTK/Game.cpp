@@ -43,7 +43,7 @@ void Game::Initialize(HWND window, int width, int height)
 	m_view = Matrix::CreateLookAt(Vector3(0.f, 2.f, 2.f),
 		Vector3::Zero, Vector3::UnitY);
 	m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
-		float(m_outputWidth) / float(m_outputHeight), 0.1f, 10.f);
+		float(m_outputWidth) / float(m_outputHeight), 0.1f, 500.f);
 
 	m_effect->SetView(m_view);
 	m_effect->SetProjection(m_proj);
@@ -60,6 +60,16 @@ void Game::Initialize(HWND window, int width, int height)
 
 	// デバッグカメラの生成
 	m_debugCamera = make_unique<DebugCamera>(m_outputWidth, m_outputHeight);
+
+	// エフェクトファクトリの生成
+	m_factory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
+
+	// テクスチャの読み取りパス指定
+	m_factory->SetDirectory(L"Resources");
+
+	// モデルの読み込み
+	m_modelGround = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ground_1m.cmo", *m_factory);
+	m_modelSkyDome = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/skyDome.cmo", *m_factory);
 
     // TODO: Change the timer settings if you want something other than the default variable timestep mode.
     // e.g. for 60 FPS fixed timestep update logic, call:
@@ -136,6 +146,10 @@ void Game::Render()
 
 	m_effect->Apply(m_d3dContext.Get());
 	m_d3dContext->IASetInputLayout(m_inputLayout.Get());
+
+	// モデルの描画
+	m_modelGround->Draw(m_d3dContext.Get(), states, m_world, m_view, m_proj);
+	m_modelSkyDome->Draw(m_d3dContext.Get(), states, m_world, m_view, m_proj);
 
 	m_batch->Begin();
 

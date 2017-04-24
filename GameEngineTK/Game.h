@@ -6,6 +6,7 @@
 
 #include <CommonStates.h>
 #include <Effects.h>
+#include <Model.h>
 #include <PrimitiveBatch.h>
 #include <SimpleMath.h>
 #include <VertexTypes.h>
@@ -71,8 +72,8 @@ private:
     // Rendering loop timer.
     DX::StepTimer                                   m_timer;
 
-	//std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_batch;		// プリミティブバッチ
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionNormal>> m_batch;		// プリミティブバッチ
+	//std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_batch;	// プリミティブバッチ
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionNormal>> m_batch;	// プリミティブバッチ
 	std::unique_ptr<DirectX::BasicEffect> m_effect;										// エフェクト
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;							// レイアウト
 
@@ -81,4 +82,8 @@ private:
 	DirectX::SimpleMath::Matrix m_proj;													// プロジェクション行列
 
 	std::unique_ptr<DebugCamera> m_debugCamera;											// デバッグカメラ
+
+	std::unique_ptr<DirectX::EffectFactory> m_factory;									// エフェクトファクトリ
+	std::unique_ptr<DirectX::Model> m_modelGround;										// 地面モデル
+	std::unique_ptr<DirectX::Model> m_modelSkyDome;										// 天球モデル
 };
