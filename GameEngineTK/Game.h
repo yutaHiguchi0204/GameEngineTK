@@ -86,4 +86,8 @@ private:
 	std::unique_ptr<DirectX::EffectFactory> m_factory;									// エフェクトファクトリ
 	std::unique_ptr<DirectX::Model> m_modelGround;										// 地面モデル
 	std::unique_ptr<DirectX::Model> m_modelSkyDome;										// 天球モデル
+	std::unique_ptr<DirectX::Model> m_modelBall;										// ボールモデル
+
+	DirectX::SimpleMath::Matrix m_worldBall;											// 球ワールド行列
+	int m_time;																			// 時間
 };

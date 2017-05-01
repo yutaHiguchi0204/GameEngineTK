@@ -70,6 +70,10 @@ void Game::Initialize(HWND window, int width, int height)
 	// モデルの読み込み
 	m_modelGround = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ground_1m.cmo", *m_factory);
 	m_modelSkyDome = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/skyDome.cmo", *m_factory);
+	m_modelBall = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ball.cmo", *m_factory);
+
+	// 時間の初期化
+	m_time = 0;
 
     // TODO: Change the timer settings if you want something other than the default variable timestep mode.
     // e.g. for 60 FPS fixed timestep update logic, call:
@@ -103,6 +107,12 @@ void Game::Update(DX::StepTimer const& timer)
 
 	// ビュー行列の取得
 	m_view = m_debugCamera->GetCameraMatrix();
+
+	// 球のワールド行列の計算
+	Matrix scaleMat = Matrix::CreateScale(2.0f);
+
+	// 時間計測
+	m_time++;
 }
 
 // Draws the scene.
@@ -148,8 +158,42 @@ void Game::Render()
 	m_d3dContext->IASetInputLayout(m_inputLayout.Get());
 
 	// モデルの描画
-	m_modelGround->Draw(m_d3dContext.Get(), states, m_world, m_view, m_proj);
+	for (int i = 0; i < 100; i++)
+	{
+		for (int j = 0; j < 100; j++)
+		{
+			// 平行移動
+			Matrix transMat = Matrix::CreateTranslation(i - 50, 0.0f, j - 50);
+
+			m_world = transMat;
+
+			m_modelGround->Draw(m_d3dContext.Get(), states, m_world, m_view, m_proj);
+		}
+	}
+	m_world = Matrix::Identity;
 	m_modelSkyDome->Draw(m_d3dContext.Get(), states, m_world, m_view, m_proj);
+
+	// スケーリングの初期設定
+	Matrix scaleMat = Matrix::CreateScale(1.0f);
+
+	// 同心円状に20個配置
+	for (int i = 0; i < 20; i++)
+	{
+		// 平行移動
+		Matrix transMat = Matrix::CreateTranslation((i / 10 + 1) * 20.0f, 0.0f, 0.0f);
+
+		// 回転
+		Matrix rotMatZ = Matrix::CreateRotationZ(XMConvertToRadians(0.0f));
+		Matrix rotMatX = Matrix::CreateRotationX(XMConvertToRadians(0.0f));
+		Matrix rotMatY = Matrix::CreateRotationY(XMConvertToRadians(i * (360 / 10) + (i / 10 * 2 - 1) * m_time));
+		Matrix rotMat = rotMatZ * rotMatX * rotMatY;
+
+		// ワールド行列を計算
+		m_worldBall = scaleMat * transMat * rotMat;
+
+		// ボールを描画
+		m_modelBall->Draw(m_d3dContext.Get(), states, m_worldBall, m_view, m_proj);
+	}
 
 	m_batch->Begin();
 
@@ -164,7 +208,7 @@ void Game::Render()
 
 	m_batch->DrawTriangle(v1, v2, v3);*/
 
-	m_batch->DrawIndexed(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST, indices, 6, vertices, 4);
+	//m_batch->DrawIndexed(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST, indices, 6, vertices, 4);
 
 	m_batch->End();
 
