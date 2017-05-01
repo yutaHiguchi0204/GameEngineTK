@@ -86,8 +86,13 @@ private:
 	std::unique_ptr<DirectX::EffectFactory> m_factory;									// エフェクトファクトリ
 	std::unique_ptr<DirectX::Model> m_modelGround;										// 地面モデル
 	std::unique_ptr<DirectX::Model> m_modelSkyDome;										// 天球モデル
-	std::unique_ptr<DirectX::Model> m_modelBall;										// ボールモデル
+	//std::unique_ptr<DirectX::Model> m_modelBall;										// ボールモデル
+	std::unique_ptr<DirectX::Model> m_modelTeaPot;										// ティーポットモデル
 
-	DirectX::SimpleMath::Matrix m_worldBall;											// 球ワールド行列
+	//DirectX::SimpleMath::Matrix m_worldBall;											// 球ワールド行列
+	DirectX::SimpleMath::Matrix m_worldTeaPot;											// ティーポットワールド行列
 	int m_time;																			// 時間
+
+	int m_distance[20];				// ティーポット用距離
+	int m_digree[20];				// ティーポット用角度
 };

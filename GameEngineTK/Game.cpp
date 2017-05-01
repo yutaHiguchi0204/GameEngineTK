@@ -68,12 +68,20 @@ void Game::Initialize(HWND window, int width, int height)
 	m_factory->SetDirectory(L"Resources");
 
 	// モデルの読み込み
-	m_modelGround = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ground_1m.cmo", *m_factory);
+	m_modelGround = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ground_200m.cmo", *m_factory);
 	m_modelSkyDome = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/skyDome.cmo", *m_factory);
-	m_modelBall = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ball.cmo", *m_factory);
+	//m_modelBall = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ball.cmo", *m_factory);
+	m_modelTeaPot = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/teaPot.cmo", *m_factory);
 
 	// 時間の初期化
 	m_time = 0;
+
+	// ランダムでティーポットの距離と角度を設定
+	for (int i = 0; i < 20; i++)
+	{
+		m_distance[i] = rand() % 100;
+		m_digree[i] = rand() % 360;
+	}
 
     // TODO: Change the timer settings if you want something other than the default variable timestep mode.
     // e.g. for 60 FPS fixed timestep update logic, call:
@@ -158,41 +166,63 @@ void Game::Render()
 	m_d3dContext->IASetInputLayout(m_inputLayout.Get());
 
 	// モデルの描画
-	for (int i = 0; i < 100; i++)
-	{
-		for (int j = 0; j < 100; j++)
-		{
-			// 平行移動
-			Matrix transMat = Matrix::CreateTranslation(i - 50, 0.0f, j - 50);
-
-			m_world = transMat;
-
-			m_modelGround->Draw(m_d3dContext.Get(), states, m_world, m_view, m_proj);
-		}
-	}
-	m_world = Matrix::Identity;
+	m_modelGround->Draw(m_d3dContext.Get(), states, m_world, m_view, m_proj);
 	m_modelSkyDome->Draw(m_d3dContext.Get(), states, m_world, m_view, m_proj);
 
 	// スケーリングの初期設定
 	Matrix scaleMat = Matrix::CreateScale(1.0f);
+	// 計算式　-1 ～ 1　→　0 ～ 2　→　0 ～ 4　→　1 ～ 5（倍）
+	//Matrix scaleMat = Matrix::CreateScale((sinf(m_time / 90.0f) + 1.0f) * 2.0f + 1.0f);
 
 	// 同心円状に20個配置
+	//for (int i = 0; i < 20; i++)
+	//{
+	//	// 平行移動
+	//	Matrix transMat = Matrix::CreateTranslation((i / 10 + 1) * 20.0f, 0.0f, 0.0f);
+
+	//	// 回転
+	//	Matrix rotMatZ = Matrix::CreateRotationZ(XMConvertToRadians(0.0f));
+	//	Matrix rotMatX = Matrix::CreateRotationX(XMConvertToRadians(0.0f));
+	//	Matrix rotMatY = Matrix::CreateRotationY(XMConvertToRadians(i * (360 / 10) + (i / 10 * 2 - 1) * m_time));
+	//	Matrix rotMat = rotMatZ * rotMatX * rotMatY;
+
+	//	// ワールド行列を計算
+	//	//m_worldBall = scaleMat * transMat * rotMat;
+
+	//	// ボールを描画
+	//	//m_modelBall->Draw(m_d3dContext.Get(), states, m_worldBall, m_view, m_proj);
+	//}
+
+	Matrix rotateY = Matrix::CreateRotationY(XMConvertToRadians(m_time));
+
+	// ランダムにティーポットを20個表示
 	for (int i = 0; i < 20; i++)
 	{
 		// 平行移動
-		Matrix transMat = Matrix::CreateTranslation((i / 10 + 1) * 20.0f, 0.0f, 0.0f);
+		//Matrix transMat = Matrix::CreateTranslation(m_distance[i], 0.0f, 0.0f);
+
+		// 中心に向かって平行移動
+		Matrix transMat;
+		if (m_time < 10 * 60.0f)
+		{
+			transMat = Matrix::CreateTranslation((10 * 60.0f - m_time) / (10 * 60.0f) * m_distance[i], 0.0f, 0.0f);
+		}
+		else
+		{
+			transMat = Matrix::Identity;
+		}
 
 		// 回転
 		Matrix rotMatZ = Matrix::CreateRotationZ(XMConvertToRadians(0.0f));
 		Matrix rotMatX = Matrix::CreateRotationX(XMConvertToRadians(0.0f));
-		Matrix rotMatY = Matrix::CreateRotationY(XMConvertToRadians(i * (360 / 10) + (i / 10 * 2 - 1) * m_time));
+		Matrix rotMatY = Matrix::CreateRotationY(XMConvertToRadians(m_digree[i]));
 		Matrix rotMat = rotMatZ * rotMatX * rotMatY;
 
 		// ワールド行列を計算
-		m_worldBall = scaleMat * transMat * rotMat;
+		m_worldTeaPot = rotateY * scaleMat * transMat * rotMat;
 
-		// ボールを描画
-		m_modelBall->Draw(m_d3dContext.Get(), states, m_worldBall, m_view, m_proj);
+		// ティーポットを描画
+		m_modelTeaPot->Draw(m_d3dContext.Get(), states, m_worldTeaPot, m_view, m_proj);
 	}
 
 	m_batch->Begin();
