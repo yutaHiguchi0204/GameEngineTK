@@ -6,6 +6,7 @@
 
 #include <CommonStates.h>
 #include <Effects.h>
+#include <Keyboard.h>
 #include <Model.h>
 #include <PrimitiveBatch.h>
 #include <SimpleMath.h>
@@ -82,15 +83,21 @@ private:
 	DirectX::SimpleMath::Matrix m_proj;													// プロジェクション行列
 
 	std::unique_ptr<DebugCamera> m_debugCamera;											// デバッグカメラ
+	std::unique_ptr<DirectX::Keyboard> m_keyboard;												// キーボード
 
 	std::unique_ptr<DirectX::EffectFactory> m_factory;									// エフェクトファクトリ
 	std::unique_ptr<DirectX::Model> m_modelGround;										// 地面モデル
 	std::unique_ptr<DirectX::Model> m_modelSkyDome;										// 天球モデル
 	//std::unique_ptr<DirectX::Model> m_modelBall;										// ボールモデル
-	std::unique_ptr<DirectX::Model> m_modelTeaPot;										// ティーポットモデル
+	//std::unique_ptr<DirectX::Model> m_modelTeaPot;									// ティーポットモデル
+	std::unique_ptr<DirectX::Model> m_modelTank;										// タンクモデル
+
+	DirectX::SimpleMath::Vector3 m_tankPos;												// タンクの位置
+	float m_tankRotate;																	// タンクの角度
 
 	//DirectX::SimpleMath::Matrix m_worldBall;											// 球ワールド行列
-	DirectX::SimpleMath::Matrix m_worldTeaPot;											// ティーポットワールド行列
+	//DirectX::SimpleMath::Matrix m_worldTeaPot;										// ティーポットワールド行列
+	DirectX::SimpleMath::Matrix m_worldTank;											// タンクワールド行列
 	int m_time;																			// 時間
 
 	int m_distance[20];				// ティーポット用距離
