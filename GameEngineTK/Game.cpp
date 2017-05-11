@@ -62,6 +62,9 @@ void Game::Initialize(HWND window, int width, int height)
 		shaderByteCode, byteCodeLength,
 		m_inputLayout.GetAddressOf());
 
+	// カメラの生成
+	m_camera = make_unique<Camera>(m_outputWidth, m_outputHeight);
+
 	// デバッグカメラの生成
 	m_debugCamera = make_unique<DebugCamera>(m_outputWidth, m_outputHeight);
 
@@ -123,8 +126,42 @@ void Game::Update(DX::StepTimer const& timer)
 	/* 毎フレーム更新したい処理はここへ */
 	m_debugCamera->Update();
 
+	//// ビュー行列の取得
+	//m_view = m_debugCamera->GetCameraMatrix();
+	////Vector3 eyePos(0.0f, 0.0f, 5.0f);				// 視点
+	////Vector3 refPos(0.0f, 0.0f, 0.0f);				// 注視点（参照点）
+	////Vector3 upVec(0.0f, 1.0f, 0.0f);				// 上方向ベクトル
+	////m_view = Matrix::CreateLookAt(eyePos, refPos, upVec);
+
+	//// プロジェクション行列の取得
+	//float fovY = XMConvertToRadians(60.0f);						// 垂直方向視野角
+	//float aspect = (float)m_outputWidth / m_outputHeight;		// アスペクト比
+	//float nearClip = 0.1f;										// 手前の表示限界距離
+	//float farClip = 1000.0f;									// 奥の表示限界距離
+	//m_proj = Matrix::CreatePerspectiveFieldOfView(fovY, aspect, nearClip, farClip);
+
+	// カメラの更新
+	m_camera->Update();
+
 	// ビュー行列の取得
-	m_view = m_debugCamera->GetCameraMatrix();
+	m_view = m_camera->GetViewMatrix();
+
+	// プロジェクション行列の取得
+	m_proj = m_camera->GetProjectionMatrix();
+
+	// ビュー行列関係の設定
+	Vector3 tankPosBack = Vector3(0.0f, -1.0f, -3.0f);
+	Matrix rotMatCamera = Matrix::CreateRotationY(XMConvertToRadians(m_tankRotate));
+	tankPosBack = Vector3::TransformNormal(tankPosBack, rotMatCamera);
+	m_camera->SetEyePos(m_tankPos - tankPosBack);					// 視点の設定
+	m_camera->SetRefPos(m_tankPos);									// 注視点の設定
+	m_camera->SetUpVec(Vector3(0.0f, 1.0f, 0.0f));					// 上方向ベクトルの設定
+
+	// プロジェクション行列関係の設定
+	m_camera->SetFovY(XMConvertToRadians(60.0f));					// 垂直方向視野角の設定
+	m_camera->SetAspect((float)m_outputWidth / m_outputHeight);		// アスペクト比の設定
+	m_camera->SetNearClip(0.1f);									// 手前の表示限界距離の設定
+	m_camera->SetFarClip(1000.0f);									// 奥の表示限界距離の設定
 
 	// 球のワールド行列の計算
 	Matrix scaleMat = Matrix::CreateScale(2.0f);

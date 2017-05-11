@@ -12,6 +12,7 @@
 #include <SimpleMath.h>
 #include <VertexTypes.h>
 
+#include "Camera.h"
 #include "DebugCamera.h"
 
 #include "StepTimer.h"
@@ -82,8 +83,9 @@ private:
 	DirectX::SimpleMath::Matrix m_view;													// ビュー行列
 	DirectX::SimpleMath::Matrix m_proj;													// プロジェクション行列
 
+	std::unique_ptr<Camera> m_camera;													// カメラ
 	std::unique_ptr<DebugCamera> m_debugCamera;											// デバッグカメラ
-	std::unique_ptr<DirectX::Keyboard> m_keyboard;												// キーボード
+	std::unique_ptr<DirectX::Keyboard> m_keyboard;										// キーボード
 
 	std::unique_ptr<DirectX::EffectFactory> m_factory;									// エフェクトファクトリ
 	std::unique_ptr<DirectX::Model> m_modelGround;										// 地面モデル
