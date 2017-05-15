@@ -7,7 +7,7 @@ using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
 // コンストラクタ
-Camera::Camera(int w, int h)
+Camera::Camera(int width, int height)
 {
 	// ビュー行列関係の初期設定
 	m_eyePos = Vector3(0.0f, 0.0f, 5.0f);
@@ -17,7 +17,7 @@ Camera::Camera(int w, int h)
 
 	// プロジェクション行列関係の初期設定
 	m_fovY = XMConvertToRadians(60.0f);
-	m_aspect = (float)w / h;
+	m_aspect = (float)width / height;
 	m_nearClip = 0.1f;
 	m_farClip = 1000.0f;
 }
@@ -44,7 +44,7 @@ void Camera::Update()
 /// ビュー行列の取得
 /// </summary>
 /// <returns>行列</returns>
-DirectX::SimpleMath::Matrix Camera::GetViewMatrix()
+const DirectX::SimpleMath::Matrix& Camera::GetViewMatrix()
 {
 	return m_view;
 }
@@ -53,7 +53,7 @@ DirectX::SimpleMath::Matrix Camera::GetViewMatrix()
 /// プロジェクション行列の取得
 /// </summary>
 /// <returns>行列</returns>
-DirectX::SimpleMath::Matrix Camera::GetProjectionMatrix()
+const DirectX::SimpleMath::Matrix& Camera::GetProjectionMatrix()
 {
 	return m_proj;
 }
@@ -62,7 +62,7 @@ DirectX::SimpleMath::Matrix Camera::GetProjectionMatrix()
 /// 視点の設定
 /// </summary>
 /// <param name="pos">視点</param>
-void Camera::SetEyePos(DirectX::SimpleMath::Vector3 pos)
+void Camera::SetEyePos(const DirectX::SimpleMath::Vector3& pos)
 {
 	m_eyePos = pos;
 }
@@ -71,7 +71,7 @@ void Camera::SetEyePos(DirectX::SimpleMath::Vector3 pos)
 /// 注視点の設定
 /// </summary>
 /// <param name="pos">注視点</param>
-void Camera::SetRefPos(DirectX::SimpleMath::Vector3 pos)
+void Camera::SetRefPos(const DirectX::SimpleMath::Vector3& pos)
 {
 	m_refPos = pos;
 }
@@ -80,7 +80,7 @@ void Camera::SetRefPos(DirectX::SimpleMath::Vector3 pos)
 /// 上方向ベクトルの設定
 /// </summary>
 /// <param name="vec">上方向ベクトル</param>
-void Camera::SetUpVec(DirectX::SimpleMath::Vector3 vec)
+void Camera::SetUpVec(const DirectX::SimpleMath::Vector3& vec)
 {
 	m_upVec = vec;
 }

@@ -24,20 +24,20 @@ protected:
 	float m_farClip;										// 奥の表示限界距離
 
 public:
-	Camera(int w, int h);
+	Camera(int width, int height);
 	virtual ~Camera();
 
-	void Update();											// 更新処理
+	virtual void Update();											// 更新処理
 
-	DirectX::SimpleMath::Matrix GetViewMatrix();			// ビュー行列の取得
-	DirectX::SimpleMath::Matrix GetProjectionMatrix();		// プロジェクション行列の取得
+	const DirectX::SimpleMath::Matrix& GetViewMatrix();				// ビュー行列の取得
+	const DirectX::SimpleMath::Matrix& GetProjectionMatrix();		// プロジェクション行列の取得
 
-	void SetEyePos(DirectX::SimpleMath::Vector3 pos);		// 視点の設定
-	void SetRefPos(DirectX::SimpleMath::Vector3 pos);		// 注視点の設定
-	void SetUpVec(DirectX::SimpleMath::Vector3 vec);		// 上方向ベクトルの設定
+	void SetEyePos(const DirectX::SimpleMath::Vector3& pos);		// 視点の設定
+	void SetRefPos(const DirectX::SimpleMath::Vector3& pos);		// 注視点の設定
+	void SetUpVec(const DirectX::SimpleMath::Vector3& vec);			// 上方向ベクトルの設定
 
-	void SetFovY(float fovY);								// 垂直方向視野角の設定
-	void SetAspect(float aspect);							// アスペクト比の設定
-	void SetNearClip(float nearClip);						// 手前の表示限界距離の設定
-	void SetFarClip(float farClip);							// 奥の表示限界距離の設定
+	void SetFovY(float fovY);										// 垂直方向視野角の設定
+	void SetAspect(float aspect);									// アスペクト比の設定
+	void SetNearClip(float nearClip);								// 手前の表示限界距離の設定
+	void SetFarClip(float farClip);									// 奥の表示限界距離の設定
 };
