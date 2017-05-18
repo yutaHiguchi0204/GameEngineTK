@@ -71,6 +71,9 @@ void Game::Initialize(HWND window, int width, int height)
 	// キーボード設定
 	m_keyboard = std::make_unique<Keyboard>();
 
+	// カメラにキーボードを設定する
+	m_camera->SetKeyboard(m_keyboard.get());
+
 	// エフェクトファクトリの生成
 	m_factory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
 
