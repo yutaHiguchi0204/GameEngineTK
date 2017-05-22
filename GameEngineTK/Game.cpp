@@ -2,10 +2,10 @@
 // Game.cpp
 //
 
+#include "Game.h"
 #include <cstdlib>
 #include <ctime>
 #include "pch.h"
-#include "Game.h"
 
 extern void ExitGame();
 
@@ -37,6 +37,18 @@ void Game::Initialize(HWND window, int width, int height)
     CreateResources();
 
 	/* 初期化はここへ */
+
+	// カメラの生成
+	m_camera = make_unique<FollowCamera>(m_outputWidth, m_outputHeight);
+
+	// キーボード設定
+	m_keyboard = std::make_unique<Keyboard>();
+
+	// カメラにキーボードを設定する
+	m_camera->SetKeyboard(m_keyboard.get());
+
+	Obj3d::InitializeStatic(m_d3dDevice, m_d3dContext, m_camera.get());
+
 	//m_batch = make_unique<PrimitiveBatch<VertexPositionColor>>(m_d3dContext.Get());
 	m_batch = make_unique<PrimitiveBatch<VertexPositionNormal>>(m_d3dContext.Get());
 
@@ -62,17 +74,8 @@ void Game::Initialize(HWND window, int width, int height)
 		shaderByteCode, byteCodeLength,
 		m_inputLayout.GetAddressOf());
 
-	// カメラの生成
-	m_camera = make_unique<FollowCamera>(m_outputWidth, m_outputHeight);
-
 	// デバッグカメラの生成
 	m_debugCamera = make_unique<DebugCamera>(m_outputWidth, m_outputHeight);
-
-	// キーボード設定
-	m_keyboard = std::make_unique<Keyboard>();
-
-	// カメラにキーボードを設定する
-	m_camera->SetKeyboard(m_keyboard.get());
 
 	// エフェクトファクトリの生成
 	m_factory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
@@ -86,16 +89,17 @@ void Game::Initialize(HWND window, int width, int height)
 	//m_modelBall = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ball.cmo", *m_factory);
 	//m_modelTeaPot = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/teaPot.cmo", *m_factory);
 	m_modelTank = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/tank.cmo", *m_factory);
+	m_modelTank2 = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/tank.cmo", *m_factory);
 
 	// 時間の初期化
 	m_time = 0;
 
 	// ランダムでティーポットの距離と角度を設定
-	for (int i = 0; i < 20; i++)
-	{
-		m_distance[i] = rand() % 100;
-		m_digree[i] = rand() % 360;
-	}
+	//for (int i = 0; i < 20; i++)
+	//{
+	//	m_distance[i] = rand() % 100;
+	//	m_digree[i] = rand() % 360;
+	//}
 
 	m_tankRotate = 0.0f;
 
@@ -316,12 +320,23 @@ void Game::Render()
 	//}
 
 	// タンクのワールド行列を設定
-	Matrix rotateMatTank = Matrix::CreateRotationY(XMConvertToRadians(m_tankRotate));
-	Matrix transMatTank = Matrix::CreateTranslation(m_tankPos);
-	m_worldTank = rotateMatTank * transMatTank;
+	//{
+	//	// パーツ１（親）
+	//	Matrix rotateMatTank = Matrix::CreateRotationY(XMConvertToRadians(m_tankRotate));
+	//	Matrix transMatTank = Matrix::CreateTranslation(m_tankPos);
+	//	m_worldTank = rotateMatTank * transMatTank;
+
+	//	// パーツ２（子）
+	//	Matrix rotateMatTank2 = Matrix::CreateRotationZ(XM_PIDIV2) * Matrix::CreateRotationY(XMConvertToRadians(0));
+	//	Matrix transMatTank2 = Matrix::CreateTranslation(Vector3(0.0f, 0.5f, 0.0f));
+	//	m_worldTank2 = rotateMatTank2 * transMatTank2 * m_worldTank;
+	//}
 
 	// タンクの描画
-	m_modelTank->Draw(m_d3dContext.Get(), states, m_worldTank, m_view, m_proj);
+	//m_modelTank->Draw(m_d3dContext.Get(), states, m_worldTank, m_view, m_proj);
+	//m_modelTank2->Draw(m_d3dContext.Get(), states, m_worldTank2, m_view, m_proj);
+	m_objPlayer.Draw();
+	m_objPlayer2.Draw();
 
 	m_batch->Begin();
 

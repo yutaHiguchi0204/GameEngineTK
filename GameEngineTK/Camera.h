@@ -3,7 +3,7 @@
 // カメラを制御するクラス
 //
 #pragma once
-#include <d3d11.h>
+#include <d3d11_1.h>
 #include <SimpleMath.h>
 
 // クラスの定義

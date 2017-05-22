@@ -10,8 +10,10 @@
 #include <Model.h>
 #include <PrimitiveBatch.h>
 #include <SimpleMath.h>
+#include <vector>
 #include <VertexTypes.h>
 
+#include "Obj3d.h"
 #include "FollowCamera.h"
 #include "DebugCamera.h"
 
@@ -93,15 +95,21 @@ private:
 	//std::unique_ptr<DirectX::Model> m_modelBall;										// ボールモデル
 	//std::unique_ptr<DirectX::Model> m_modelTeaPot;									// ティーポットモデル
 	std::unique_ptr<DirectX::Model> m_modelTank;										// タンクモデル
+	std::unique_ptr<DirectX::Model> m_modelTank2;										// タンクモデル
 
 	DirectX::SimpleMath::Vector3 m_tankPos;												// タンクの位置
 	float m_tankRotate;																	// タンクの角度
 
 	//DirectX::SimpleMath::Matrix m_worldBall;											// 球ワールド行列
 	//DirectX::SimpleMath::Matrix m_worldTeaPot;										// ティーポットワールド行列
-	DirectX::SimpleMath::Matrix m_worldTank;											// タンクワールド行列
+	//DirectX::SimpleMath::Matrix m_worldTank;											// タンクワールド行列
+	//DirectX::SimpleMath::Matrix m_worldTank2;											// タンクワールド行列
 	int m_time;																			// 時間
 
-	int m_distance[20];				// ティーポット用距離
-	int m_digree[20];				// ティーポット用角度
+	Obj3d m_objPlayer;																	// 自機の３Ｄオブジェクト
+	Obj3d m_objPlayer2;																	// 自機の３Ｄオブジェクト
+	//std::vector<Obj3d> m_objPlayer;														// 自機の３Ｄオブジェクト
+
+	//int m_distance[20];				// ティーポット用距離
+	//int m_digree[20];				// ティーポット用角度
 };
