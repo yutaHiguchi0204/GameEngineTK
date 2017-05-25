@@ -26,6 +26,23 @@ class Game
 {
 public:
 
+	enum PLAYER_PARTS
+	{
+		PARTS_TANK,
+		PARTS_BODY,
+		PARTS_HEAD,
+		PARTS_WEAPON,
+
+		PARTS_NUM
+	};
+
+	wchar_t* PARTS_NAME[PARTS_NUM] = {
+		L"tank",
+		L"body",
+		L"head",
+		L"weapon"
+	};
+
     Game();
 
     // Initialization and management
@@ -90,26 +107,22 @@ private:
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;										// キーボード
 
 	std::unique_ptr<DirectX::EffectFactory> m_factory;									// エフェクトファクトリ
-	std::unique_ptr<DirectX::Model> m_modelGround;										// 地面モデル
-	std::unique_ptr<DirectX::Model> m_modelSkyDome;										// 天球モデル
+	Obj3d m_objGround;																	// 地面の３Ｄオブジェクト
+	Obj3d m_objSkyDome;																	// 天球の３Ｄオブジェクト
 	//std::unique_ptr<DirectX::Model> m_modelBall;										// ボールモデル
 	//std::unique_ptr<DirectX::Model> m_modelTeaPot;									// ティーポットモデル
-	std::unique_ptr<DirectX::Model> m_modelTank;										// タンクモデル
-	std::unique_ptr<DirectX::Model> m_modelTank2;										// タンクモデル
+	Obj3d m_objTank;																	// タンクの３Ｄオブジェクト
+	Obj3d m_objBody;																	// 胴体の３Ｄオブジェクト
 
 	DirectX::SimpleMath::Vector3 m_tankPos;												// タンクの位置
 	float m_tankRotate;																	// タンクの角度
 
 	//DirectX::SimpleMath::Matrix m_worldBall;											// 球ワールド行列
 	//DirectX::SimpleMath::Matrix m_worldTeaPot;										// ティーポットワールド行列
-	//DirectX::SimpleMath::Matrix m_worldTank;											// タンクワールド行列
-	//DirectX::SimpleMath::Matrix m_worldTank2;											// タンクワールド行列
 	int m_time;																			// 時間
 
-	Obj3d m_objPlayer;																	// 自機の３Ｄオブジェクト
-	Obj3d m_objPlayer2;																	// 自機の３Ｄオブジェクト
-	//std::vector<Obj3d> m_objPlayer;														// 自機の３Ｄオブジェクト
+	std::vector<Obj3d> m_objPlayer;														// 自機の３Ｄオブジェクト
 
-	//int m_distance[20];				// ティーポット用距離
-	//int m_digree[20];				// ティーポット用角度
+	//int m_distance[20];																// ティーポット用距離
+	//int m_digree[20];																	// ティーポット用角度
 };

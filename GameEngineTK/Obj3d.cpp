@@ -42,7 +42,11 @@ void Obj3d::InitializeStatic(Microsoft::WRL::ComPtr<ID3D11Device> d3dDevice, Mic
 /// </summary>
 Obj3d::Obj3d()
 {
+	// スケールの初期化
+	m_scale = Vector3(1.0f, 1.0f, 1.0f);
 
+	// 親の３Ｄオブジェクトを初期化
+	m_pParent = nullptr;
 }
 
 /// <summary>
@@ -50,7 +54,26 @@ Obj3d::Obj3d()
 /// </summary>
 void Obj3d::Update()
 {
+	// 行列の計算
+	{
+		// スケーリング行列
+		Matrix scaleMat = Matrix::CreateScale(m_scale);
 
+		// 回転行列
+		Matrix rotMatZ = Matrix::CreateRotationZ(m_rotate.z);
+		Matrix rotMatX = Matrix::CreateRotationX(m_rotate.x);
+		Matrix rotMatY = Matrix::CreateRotationY(m_rotate.y);
+		Matrix rotMat = rotMatZ * rotMatX * rotMatY;
+
+		// 平行移動行列
+		Matrix transMat = Matrix::CreateTranslation(m_translate);
+
+		// ワールド行列の合成
+		m_world = scaleMat * rotMat * transMat;
+
+		// 親の行列をかける（子の場合）
+		if (m_pParent) m_world *= m_pParent->GetWorldMatrix();
+	}
 }
 
 /// <summary>
@@ -58,9 +81,29 @@ void Obj3d::Update()
 /// </summary>
 void Obj3d::Draw()
 {
-
+	if (m_model)
+	{
+		// ３Ｄモデルの描画
+		m_model->Draw(
+			m_d3dContext.Get(),
+			*m_states,
+			m_world,
+			m_camera->GetViewMatrix(),
+			m_camera->GetProjectionMatrix()
+		);
+	}
 }
 
-void Obj3d::LoadModel(const wchar_t * fileName)
+/// <summary>
+/// モデルのロード
+/// </summary>
+/// <param name="fileName">モデルのファイル名</param>
+void Obj3d::LoadModel(const wchar_t* fileName)
 {
+	// モデルの読み込み
+	m_model = Model::CreateFromCMO(
+		m_d3dDevice.Get(),
+		fileName,
+		*m_factory
+	);
 }

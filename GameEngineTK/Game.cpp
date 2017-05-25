@@ -84,12 +84,18 @@ void Game::Initialize(HWND window, int width, int height)
 	m_factory->SetDirectory(L"Resources");
 
 	// モデルの読み込み
-	m_modelGround = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ground_200m.cmo", *m_factory);
-	m_modelSkyDome = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/skyDome.cmo", *m_factory);
+	m_objGround.LoadModel(L"Resources/ground_200m.cmo");
+	m_objSkyDome.LoadModel(L"Resources/skyDome.cmo");
 	//m_modelBall = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/ball.cmo", *m_factory);
 	//m_modelTeaPot = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/teaPot.cmo", *m_factory);
-	m_modelTank = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/tank.cmo", *m_factory);
-	m_modelTank2 = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/tank.cmo", *m_factory);
+	
+	// 自機パーツの読み込み
+	m_objPlayer.resize(PARTS_NUM);
+
+	m_objPlayer[PARTS_TANK].LoadModel(L"Resources/tank.cmo");
+	m_objPlayer[PARTS_BODY].LoadModel(L"Resources/body.cmo");
+	m_objPlayer[PARTS_HEAD].LoadModel(L"Resources/head.cmo");
+	m_objPlayer[PARTS_WEAPON].LoadModel(L"Resources/weapon.cmo");
 
 	// 時間の初期化
 	m_time = 0;
@@ -156,6 +162,16 @@ void Game::Update(DX::StepTimer const& timer)
 		m_camera->Update();
 		m_view = m_camera->GetViewMatrix();
 		m_proj = m_camera->GetProjectionMatrix();
+	}
+
+	// 更新処理
+	m_objGround.Update();
+	m_objSkyDome.Update();
+
+	// プレイヤーの更新
+	for (vector<Obj3d>::iterator itr = m_objPlayer.begin(); itr != m_objPlayer.end(); itr++)
+	{
+		(*itr).Update();
 	}
 
 	// 球のワールド行列の計算
@@ -251,8 +267,8 @@ void Game::Render()
 	m_d3dContext->IASetInputLayout(m_inputLayout.Get());
 
 	// モデルの描画
-	m_modelGround->Draw(m_d3dContext.Get(), states, m_world, m_view, m_proj);
-	m_modelSkyDome->Draw(m_d3dContext.Get(), states, m_world, m_view, m_proj);
+	m_objGround.Draw();
+	m_objSkyDome.Draw();
 
 	// スケーリングの初期設定
 	//Matrix scaleMat = Matrix::CreateScale(1.0f);
@@ -319,24 +335,11 @@ void Game::Render()
 	//	m_modelTeaPot->Draw(m_d3dContext.Get(), states, m_worldTeaPot, m_view, m_proj);
 	//}
 
-	// タンクのワールド行列を設定
-	//{
-	//	// パーツ１（親）
-	//	Matrix rotateMatTank = Matrix::CreateRotationY(XMConvertToRadians(m_tankRotate));
-	//	Matrix transMatTank = Matrix::CreateTranslation(m_tankPos);
-	//	m_worldTank = rotateMatTank * transMatTank;
-
-	//	// パーツ２（子）
-	//	Matrix rotateMatTank2 = Matrix::CreateRotationZ(XM_PIDIV2) * Matrix::CreateRotationY(XMConvertToRadians(0));
-	//	Matrix transMatTank2 = Matrix::CreateTranslation(Vector3(0.0f, 0.5f, 0.0f));
-	//	m_worldTank2 = rotateMatTank2 * transMatTank2 * m_worldTank;
-	//}
-
-	// タンクの描画
-	//m_modelTank->Draw(m_d3dContext.Get(), states, m_worldTank, m_view, m_proj);
-	//m_modelTank2->Draw(m_d3dContext.Get(), states, m_worldTank2, m_view, m_proj);
-	m_objPlayer.Draw();
-	m_objPlayer2.Draw();
+	// プレイヤーの描画
+	for (vector<Obj3d>::iterator itr = m_objPlayer.begin(); itr != m_objPlayer.end(); itr++)
+	{
+		(*itr).Draw();
+	}
 
 	m_batch->Begin();
 
