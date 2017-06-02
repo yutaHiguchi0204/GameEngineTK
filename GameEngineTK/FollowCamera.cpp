@@ -23,7 +23,7 @@ FollowCamera::FollowCamera(int width, int height)
 	m_targetAngle = 0.0f;
 	m_keyboard = nullptr;
 
-	isThirdPersonFlg = false;
+	isThirdPersonFlg = true;
 }
 
 // 仮想デストラクタ
@@ -60,7 +60,7 @@ void FollowCamera::Update()
 		Vector3 cameraV(0.0f, 0.0f, CAMERA_DISTANCE);
 
 		// カメラの視点方向の逆方向に回転
-		Matrix rotMat = Matrix::CreateRotationY(XMConvertToRadians(m_targetAngle));
+		Matrix rotMat = Matrix::CreateRotationY(m_targetAngle);
 		cameraV = Vector3::TransformNormal(cameraV, rotMat);
 
 		// 視点座標を計算

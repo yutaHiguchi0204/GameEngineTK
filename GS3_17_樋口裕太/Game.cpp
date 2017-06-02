@@ -90,8 +90,15 @@ void Game::Initialize(HWND window, int width, int height)
 	//m_modelTeaPot = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources/teaPot.cmo", *m_factory);
 	
 	// 自機パーツの読み込み
-	m_player.Initialize();
 	//m_objPlayer.resize(PARTS_NUM);
+	m_objPlayer.resize(PIK_NUM);
+	m_objPlayer[PIK_BODY].LoadModel(L"Resources/bodyPik.cmo");
+	m_objPlayer[PIK_LEFTFOOT].LoadModel(L"Resources/leftFootPik.cmo");
+	m_objPlayer[PIK_RIGHTFOOT].LoadModel(L"Resources/rightFootPik.cmo");
+	m_objPlayer[PIK_LEFTARM].LoadModel(L"Resources/leftArmPik.cmo");
+	m_objPlayer[PIK_RIGHTARM].LoadModel(L"Resources/rightArmPik.cmo");
+	m_objPlayer[PIK_HEAD].LoadModel(L"Resources/pikmin.cmo");
+	m_objPlayer[PIK_FLOWER].LoadModel(L"Resources/flowerPik.cmo");
 
 	//m_objPlayer[PARTS_TANK].LoadModel(L"Resources/tank.cmo");
 	//m_objPlayer[PARTS_BODY].LoadModel(L"Resources/body.cmo");
@@ -99,17 +106,29 @@ void Game::Initialize(HWND window, int width, int height)
 	//m_objPlayer[PARTS_WEAPON].LoadModel(L"Resources/weapon.cmo");
 
 	// パーツの親子関係をセット
+	m_objPlayer[PIK_LEFTFOOT].SetParent(&m_objPlayer[PIK_BODY]);
+	m_objPlayer[PIK_RIGHTFOOT].SetParent(&m_objPlayer[PIK_BODY]);
+	m_objPlayer[PIK_LEFTARM].SetParent(&m_objPlayer[PIK_BODY]);
+	m_objPlayer[PIK_RIGHTARM].SetParent(&m_objPlayer[PIK_BODY]);
+	m_objPlayer[PIK_HEAD].SetParent(&m_objPlayer[PIK_BODY]);
+	m_objPlayer[PIK_FLOWER].SetParent(&m_objPlayer[PIK_HEAD]);
 	//m_objPlayer[PARTS_BODY].SetParent(&m_objPlayer[PARTS_TANK]);
 	//m_objPlayer[PARTS_HEAD].SetParent(&m_objPlayer[PARTS_BODY]);
 	//m_objPlayer[PARTS_WEAPON].SetParent(&m_objPlayer[PARTS_BODY]);
 
 	// 親からのオフセット
+	m_objPlayer[PIK_LEFTFOOT].SetTranslate(Vector3(-0.2f, 0.0f, 0.0f));
+	m_objPlayer[PIK_RIGHTFOOT].SetTranslate(Vector3(0.2f, 0.0f, 0.0f));
+	m_objPlayer[PIK_LEFTARM].SetTranslate(Vector3(-0.25f, 0.6f, 0.2f));
+	m_objPlayer[PIK_RIGHTARM].SetTranslate(Vector3(0.25f, 0.6f, 0.2f));
+	m_objPlayer[PIK_HEAD].SetTranslate(Vector3(0.0f, 0.7f, 0.0f));
+	m_objPlayer[PIK_FLOWER].SetTranslate(Vector3(0.0f, 1.2f, 0.1f));
 	//m_objPlayer[PARTS_BODY].SetTranslate(Vector3(0.0f, 1.0f, 0.0f));
 	//m_objPlayer[PARTS_HEAD].SetTranslate(Vector3(0.0f, 0.56f, 0.0f));
 	//m_objPlayer[PARTS_WEAPON].SetTranslate(Vector3(0.45f, -0.2f, -0.2f));
 
 	// 位置の初期化
-	//m_objPlayer[PIK_BODY].SetTranslate(Vector3(0.0f, 0.6f, 0.0f));
+	m_objPlayer[PIK_BODY].SetTranslate(Vector3(0.0f, 0.6f, 0.0f));
 
 	// 時間の初期化
 	m_time = 0;
@@ -118,9 +137,9 @@ void Game::Initialize(HWND window, int width, int height)
 	cameraY = 0.0f;
 
 	// フラグの初期化
-	//m_isTurnFlg = false;
-	//m_isDuckingFlg = false;
-	//m_isFlowerFlg = false;
+	m_isTurnFlg = false;
+	m_isDuckingFlg = false;
+	m_isFlowerFlg = false;
 
 	// ランダムでティーポットの距離と角度を設定
 	//for (int i = 0; i < 20; i++)
@@ -177,8 +196,8 @@ void Game::Update(DX::StepTimer const& timer)
 
 	// ゴムひもカメラ設定
 	{
-		m_camera->SetTargetPos(m_player.GetParts(Player::PARTS_BODY).GetTranslate());
-		m_camera->SetTargetAngle(m_player.GetParts(Player::PARTS_BODY).GetRotate().y + cameraY);
+		m_camera->SetTargetPos(m_objPlayer[PIK_BODY].GetTranslate());
+		m_camera->SetTargetAngle(m_objPlayer[PIK_BODY].GetRotate().y + cameraY);
 
 		// カメラの更新
 		m_camera->Update();
@@ -191,11 +210,10 @@ void Game::Update(DX::StepTimer const& timer)
 	m_objSkyDome.Update();
 
 	// プレイヤーの更新
-	m_player.Update();
-	//for (vector<Obj3d>::iterator itr = m_objPlayer.begin(); itr != m_objPlayer.end(); itr++)
-	//{
-	//	(*itr).Update();
-	//}
+	for (vector<Obj3d>::iterator itr = m_objPlayer.begin(); itr != m_objPlayer.end(); itr++)
+	{
+		(*itr).Update();
+	}
 
 	// 球のワールド行列の計算
 	Matrix scaleMat = Matrix::CreateScale(2.0f);
@@ -224,180 +242,155 @@ void Game::Update(DX::StepTimer const& timer)
 	// Upキーが押されたら
 	if (kb.Up)
 	{
-		m_player.SetState(Player::STATE_FLOAT, true);
-		//if (!m_isFlowerFlg) m_isFlowerFlg = true;
+		if (!m_isFlowerFlg) m_isFlowerFlg = true;
 	}
 	else
 	{
-		m_player.SetState(Player::STATE_FLOAT, false);
-		//m_isFlowerFlg = false;
+		m_isFlowerFlg = false;
 	}
 
 	// 花を浮かす
-	//if (m_isFlowerFlg)
-	//{
-	//	Vector3 pos = m_objPlayer[PIK_FLOWER].GetTranslate();
+	if (m_isFlowerFlg)
+	{
+		Vector3 pos = m_objPlayer[PIK_FLOWER].GetTranslate();
 
-	//	// 花を浮かす
-	//	if (pos.y < 3.0f)
-	//	{
-	//		m_objPlayer[PIK_FLOWER].SetTranslate(pos + Vector3(0.0f, 0.05f, 0.0f));
-	//	}
-	//}
-	//else
-	//{
-	//	Vector3 pos = m_objPlayer[PIK_FLOWER].GetTranslate();
+		// 花を浮かす
+		if (pos.y < 3.0f)
+		{
+			m_objPlayer[PIK_FLOWER].SetTranslate(pos + Vector3(0.0f, 0.05f, 0.0f));
+		}
+	}
+	else
+	{
+		Vector3 pos = m_objPlayer[PIK_FLOWER].GetTranslate();
 
-	//	// 花を浮かす
-	//	if (pos.y > 1.2f)
-	//	{
-	//		m_objPlayer[PIK_FLOWER].SetTranslate(pos + Vector3(0.0f, -0.05f, 0.0f));
-	//	}
-	//}
+		// 花を浮かす
+		if (pos.y > 1.2f)
+		{
+			m_objPlayer[PIK_FLOWER].SetTranslate(pos + Vector3(0.0f, -0.05f, 0.0f));
+		}
+	}
 
 	// Downキーが押されたら
 	if (kb.Down)
 	{
-		m_player.SetState(Player::STATE_SPLITS, true);
-		//if (!m_isDuckingFlg) m_isDuckingFlg = true;
+		if (!m_isDuckingFlg) m_isDuckingFlg = true;
 	}
 	else
 	{
-		m_player.SetState(Player::STATE_SPLITS, false);
-		//m_isDuckingFlg = false;
+		m_isDuckingFlg = false;
 	}
 	
 	// 股を開く
-	//if (m_isDuckingFlg)
-	//{
-	//	Vector3 pos = m_objPlayer[PIK_BODY].GetTranslate();
-	//	Vector3 angleLeft = m_objPlayer[PIK_LEFTFOOT].GetRotate();
-	//	Vector3 angleRight = m_objPlayer[PIK_RIGHTFOOT].GetRotate();
+	if (m_isDuckingFlg)
+	{
+		Vector3 pos = m_objPlayer[PIK_BODY].GetTranslate();
+		Vector3 angleLeft = m_objPlayer[PIK_LEFTFOOT].GetRotate();
+		Vector3 angleRight = m_objPlayer[PIK_RIGHTFOOT].GetRotate();
 
-	//	// 股を開く
-	//	if (pos.y > 0.15f)
-	//	{
-	//		m_objPlayer[PIK_BODY].SetTranslate(pos + Vector3(0.0f, -0.02f, 0.0f));
-	//		m_objPlayer[PIK_LEFTFOOT].SetRotate(angleLeft + Vector3(0.0f, 0.0f, -0.03f));
-	//		m_objPlayer[PIK_RIGHTFOOT].SetRotate(angleRight + Vector3(0.0f, 0.0f, 0.03f));
-	//	}
-	//}
-	//else
-	//{
-	//	Vector3 pos = m_objPlayer[PIK_BODY].GetTranslate();
-	//	Vector3 angleLeft = m_objPlayer[PIK_LEFTFOOT].GetRotate();
-	//	Vector3 angleRight = m_objPlayer[PIK_RIGHTFOOT].GetRotate();
+		// 股を開く
+		if (pos.y > 0.15f)
+		{
+			m_objPlayer[PIK_BODY].SetTranslate(pos + Vector3(0.0f, -0.02f, 0.0f));
+			m_objPlayer[PIK_LEFTFOOT].SetRotate(angleLeft + Vector3(0.0f, 0.0f, -0.03f));
+			m_objPlayer[PIK_RIGHTFOOT].SetRotate(angleRight + Vector3(0.0f, 0.0f, 0.03f));
+		}
+	}
+	else
+	{
+		Vector3 pos = m_objPlayer[PIK_BODY].GetTranslate();
+		Vector3 angleLeft = m_objPlayer[PIK_LEFTFOOT].GetRotate();
+		Vector3 angleRight = m_objPlayer[PIK_RIGHTFOOT].GetRotate();
 
-	//	// 股を戻す
-	//	if (pos.y < 0.6f)
-	//	{
-	//		m_objPlayer[PIK_BODY].SetTranslate(pos + Vector3(0.0f, 0.02f, 0.0f));
-	//		m_objPlayer[PIK_LEFTFOOT].SetRotate(angleLeft + Vector3(0.0f, 0.0f, 0.03f));
-	//		m_objPlayer[PIK_RIGHTFOOT].SetRotate(angleRight + Vector3(0.0f, 0.0f, -0.03f));
-	//	}
-	//}
+		// 股を戻す
+		if (pos.y < 0.6f)
+		{
+			m_objPlayer[PIK_BODY].SetTranslate(pos + Vector3(0.0f, 0.02f, 0.0f));
+			m_objPlayer[PIK_LEFTFOOT].SetRotate(angleLeft + Vector3(0.0f, 0.0f, 0.03f));
+			m_objPlayer[PIK_RIGHTFOOT].SetRotate(angleRight + Vector3(0.0f, 0.0f, -0.03f));
+		}
+	}
 
 	// Ｗキーが押されたら
 	if (kb.W)
 	{
-		m_player.SetState(Player::STATE_MOVE_FORWARD, true);
-		//// 移動量ベクトルによるタンクの移動
-		//Vector3 moveV(0.0f, 0.0f, -0.1f);
+		// 移動量ベクトルによるタンクの移動
+		Vector3 moveV(0.0f, 0.0f, -0.1f);
 
-		//// 移動量ベクトルを自機の角度分回転させる
-		//float angle = m_objPlayer[PIK_BODY].GetRotate().y;
-		//Matrix rotMat = Matrix::CreateRotationY(angle);
-		//moveV = Vector3::TransformNormal(moveV, rotMat);
+		// 移動量ベクトルを自機の角度分回転させる
+		float angle = m_objPlayer[PIK_BODY].GetRotate().y;
+		Matrix rotMat = Matrix::CreateRotationY(angle);
+		moveV = Vector3::TransformNormal(moveV, rotMat);
 
-		////m_tankPos += moveV;
-		//Vector3 pos = m_objPlayer[PIK_BODY].GetTranslate();
-		//m_objPlayer[PIK_BODY].SetTranslate(pos + moveV);
-	}
-	else
-	{
-		m_player.SetState(Player::STATE_MOVE_FORWARD, false);
+		//m_tankPos += moveV;
+		Vector3 pos = m_objPlayer[PIK_BODY].GetTranslate();
+		m_objPlayer[PIK_BODY].SetTranslate(pos + moveV);
 	}
 
 	// Ｓキーが押されたら
 	if (kb.S)
 	{
-		m_player.SetState(Player::STATE_MOVE_BACK, true);
-		//// 移動量ベクトルによるタンクの移動
-		//Vector3 moveV(0.0f, 0.0f, 0.1f);
+		// 移動量ベクトルによるタンクの移動
+		Vector3 moveV(0.0f, 0.0f, 0.1f);
 
-		//// 移動量ベクトルを自機の角度分回転させる
-		//float angle = m_objPlayer[PIK_BODY].GetRotate().y;
-		//Matrix rotMat = Matrix::CreateRotationY(angle);
-		//moveV = Vector3::TransformNormal(moveV, rotMat);
+		// 移動量ベクトルを自機の角度分回転させる
+		float angle = m_objPlayer[PIK_BODY].GetRotate().y;
+		Matrix rotMat = Matrix::CreateRotationY(angle);
+		moveV = Vector3::TransformNormal(moveV, rotMat);
 
-		////m_tankPos += moveV;
-		//Vector3 pos = m_objPlayer[PIK_BODY].GetTranslate();
-		//m_objPlayer[PIK_BODY].SetTranslate(pos + moveV);
-	}
-	else
-	{
-		m_player.SetState(Player::STATE_MOVE_BACK, false);
+		//m_tankPos += moveV;
+		Vector3 pos = m_objPlayer[PIK_BODY].GetTranslate();
+		m_objPlayer[PIK_BODY].SetTranslate(pos + moveV);
 	}
 
 	// Ａキーが押されたら
 	if (kb.A)
 	{
 		// 回転ベクトルによるタンクの回転
-		m_player.SetState(Player::STATE_MOVE_LEFT, true);
 		//m_tankRotate++;
-		//float angleX = m_objPlayer[PIK_BODY].GetRotate().x;
-		//float angleY = m_objPlayer[PIK_BODY].GetRotate().y;
-		//m_objPlayer[PIK_BODY].SetRotate(Vector3(angleX, angleY + 0.03f, 0.0f));
-	}
-	else
-	{
-		m_player.SetState(Player::STATE_MOVE_LEFT, false);
+		float angleX = m_objPlayer[PIK_BODY].GetRotate().x;
+		float angleY = m_objPlayer[PIK_BODY].GetRotate().y;
+		m_objPlayer[PIK_BODY].SetRotate(Vector3(angleX, angleY + 0.03f, 0.0f));
 	}
 
 	// Ｄキーが押されたら
 	if (kb.D)
 	{
 		// 回転ベクトルによるタンクの回転
-		m_player.SetState(Player::STATE_MOVE_RIGHT, true);
 		//m_tankRotate--;
-		//float angleX = m_objPlayer[PIK_BODY].GetRotate().x;
-		//float angleY = m_objPlayer[PIK_BODY].GetRotate().y;
-		//m_objPlayer[PIK_BODY].SetRotate(Vector3(angleX, angleY - 0.03f, 0.0f));
-	}
-	else
-	{
-		m_player.SetState(Player::STATE_MOVE_RIGHT, false);
+		float angleX = m_objPlayer[PIK_BODY].GetRotate().x;
+		float angleY = m_objPlayer[PIK_BODY].GetRotate().y;
+		m_objPlayer[PIK_BODY].SetRotate(Vector3(angleX, angleY - 0.03f, 0.0f));
 	}
 
 	// Spaceキーが押されたら
-	if (kb.Space)
+	if (kb.Space && !m_isTurnFlg)
 	{
-		m_player.SetState(Player::STATE_TURN, true);
-		//m_isTurnFlg = true;
+		m_isTurnFlg = true;
 	}
 
 	// 前宙
-	//if (m_isTurnFlg)
-	//{
-	//	float angleX = m_objPlayer[PIK_BODY].GetRotate().x;
-	//	float angleY = m_objPlayer[PIK_BODY].GetRotate().y;
-	//	Vector3 transMat = m_objPlayer[PIK_BODY].GetTranslate();
+	if (m_isTurnFlg)
+	{
+		float angleX = m_objPlayer[PIK_BODY].GetRotate().x;
+		float angleY = m_objPlayer[PIK_BODY].GetRotate().y;
+		Vector3 transMat = m_objPlayer[PIK_BODY].GetTranslate();
 
-	//	if (m_objPlayer[PIK_BODY].GetRotate().x > -XM_2PI)
-	//	{
-	//		m_objPlayer[PIK_BODY].SetRotate(Vector3(angleX - 0.1f, angleY, 0.0f));
-	//		m_objPlayer[PIK_BODY].SetTranslate(Vector3(transMat.x, transMat.y - sinf(angleX) * 0.2f, transMat.z));
-	//	}
-	//	else
-	//	{
-	//		m_objPlayer[PIK_BODY].SetRotate(Vector3(0.0f, angleY, 0.0f));
-	//		m_isTurnFlg = false;
-	//	}
-	//}
+		if (m_objPlayer[PIK_BODY].GetRotate().x > -XM_2PI)
+		{
+			m_objPlayer[PIK_BODY].SetRotate(Vector3(angleX - 0.1f, angleY, 0.0f));
+			m_objPlayer[PIK_BODY].SetTranslate(Vector3(transMat.x, transMat.y - sinf(angleX) * 0.2f, transMat.z));
+		}
+		else
+		{
+			m_objPlayer[PIK_BODY].SetRotate(Vector3(0.0f, angleY, 0.0f));
+			m_isTurnFlg = false;
+		}
+	}
 
 	// 花（という名の歯車）を回転させる
-	//float flowerAngle = m_objPlayer[PIK_FLOWER].GetRotate().z;
-	//m_objPlayer[PIK_FLOWER].SetRotate(Vector3(0.0f, 0.0f, flowerAngle + 0.1f));
+	float flowerAngle = m_objPlayer[PIK_FLOWER].GetRotate().z;
+	m_objPlayer[PIK_FLOWER].SetRotate(Vector3(0.0f, 0.0f, flowerAngle + 0.1f));
 
 	// 時間計測
 	m_time++;
@@ -515,11 +508,10 @@ void Game::Render()
 	//}
 
 	// プレイヤーの描画
-	m_player.Draw();
-	//for (vector<Obj3d>::iterator itr = m_objPlayer.begin(); itr != m_objPlayer.end(); itr++)
-	//{
-	//	(*itr).Draw();
-	//}
+	for (vector<Obj3d>::iterator itr = m_objPlayer.begin(); itr != m_objPlayer.end(); itr++)
+	{
+		(*itr).Draw();
+	}
 
 	m_batch->Begin();
 

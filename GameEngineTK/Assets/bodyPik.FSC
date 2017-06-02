@@ -1,0 +1,24 @@
+/*							Parts Assembler
+                                  Version 2.04.080624(:
+Parts: 
+	F1\F116.suf
+Info:
+	DisplayOffset: (   0.000   0.000   0.000 )
+	DisplayScale: 0.125000000000
+	MeshFlag: 1
+	MeshSpacing: 200
+	ShowStatus: 1
+	GridFlag: 1
+	GridSpacing: 50
+	RotSpacing: 10
+	SelectedOnly: 0
+*/
+fram
+{
+	light pal( rgb ( 1.00 1.00 1.00 )  45  54 -70 )
+	{	mov ( 134.126 -1493.99 900 ) eye deg( 60 ) }
+	{	mov ( 0 0 0 ) target }
+{	mov ( 0 0 0 ) rotz ( 180 ) roty ( 90 ) rotx ( 0 )
+	scal ( 1 1 1 ) obj F116 /* "F1\F116.suf" */
+}
+}

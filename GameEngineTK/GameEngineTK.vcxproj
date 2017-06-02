@@ -168,6 +168,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="Obj3d.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="StepTimer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +184,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -201,9 +203,16 @@
   <ItemGroup>
     <MeshContentTask Include="Assets\ball.FBX" />
     <MeshContentTask Include="Assets\body.FBX" />
+    <MeshContentTask Include="Assets\bodyPik.FBX" />
+    <MeshContentTask Include="Assets\flowerPik.FBX" />
     <MeshContentTask Include="Assets\ground_1m.FBX" />
     <MeshContentTask Include="Assets\ground_200m.FBX" />
     <MeshContentTask Include="Assets\head.FBX" />
+    <MeshContentTask Include="Assets\leftArmPik.FBX" />
+    <MeshContentTask Include="Assets\leftFootPik.FBX" />
+    <MeshContentTask Include="Assets\pikmin.FBX" />
+    <MeshContentTask Include="Assets\rightArmPik.FBX" />
+    <MeshContentTask Include="Assets\rightFootPik.FBX" />
     <MeshContentTask Include="Assets\skyDome.FBX" />
     <MeshContentTask Include="Assets\tank.FBX" />
     <MeshContentTask Include="Assets\teaPot.FBX" />

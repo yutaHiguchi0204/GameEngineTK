@@ -16,7 +16,6 @@
 #include "Obj3d.h"
 #include "FollowCamera.h"
 #include "DebugCamera.h"
-#include "Player.h"
 
 #include "StepTimer.h"
 
@@ -44,28 +43,28 @@ public:
 		L"weapon"
 	};*/
 
-	//enum PIKMIN
-	//{
-	//	PIK_BODY,
-	//	PIK_LEFTFOOT,
-	//	PIK_RIGHTFOOT,
-	//	PIK_LEFTARM,
-	//	PIK_RIGHTARM,
-	//	PIK_HEAD,
-	//	PIK_FLOWER,
+	enum PIKMIN
+	{
+		PIK_BODY,
+		PIK_LEFTFOOT,
+		PIK_RIGHTFOOT,
+		PIK_LEFTARM,
+		PIK_RIGHTARM,
+		PIK_HEAD,
+		PIK_FLOWER,
 
-	//	PIK_NUM
-	//};
+		PIK_NUM
+	};
 
-	//wchar_t* PARTS_NAME[PIK_NUM] = {
-	//	L"bodyPik",
-	//	L"leftFootPik",
-	//	L"rightFootPik",
-	//	L"leftArmPik",
-	//	L"rightArmPik",
-	//	L"pikmin",
-	//	L"flowerPik"
-	//};
+	wchar_t* PARTS_NAME[PIK_NUM] = {
+		L"bodyPik",
+		L"leftFootPik",
+		L"rightFootPik",
+		L"leftArmPik",
+		L"rightArmPik",
+		L"pikmin",
+		L"flowerPik"
+	};
 
     Game();
 
@@ -145,8 +144,7 @@ private:
 	//DirectX::SimpleMath::Matrix m_worldTeaPot;										// ティーポットワールド行列
 	int m_time;																			// 時間
 
-	Player m_player;
-	//std::vector<Obj3d> m_objPlayer;														// 自機の３Ｄオブジェクト
+	std::vector<Obj3d> m_objPlayer;														// 自機の３Ｄオブジェクト
 
 	//int m_distance[20];																// ティーポット用距離
 	//int m_digree[20];																	// ティーポット用角度
