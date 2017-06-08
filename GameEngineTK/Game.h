@@ -14,6 +14,7 @@
 #include <VertexTypes.h>
 
 #include "Obj3d.h"
+#include "Enemy.h"
 #include "FollowCamera.h"
 #include "DebugCamera.h"
 #include "Player.h"
@@ -26,46 +27,6 @@
 class Game
 {
 public:
-
-	/*enum PLAYER_PARTS
-	{
-		PARTS_TANK,
-		PARTS_BODY,
-		PARTS_HEAD,
-		PARTS_WEAPON,
-
-		PARTS_NUM
-	};
-
-	wchar_t* PARTS_NAME[PARTS_NUM] = {
-		L"tank",
-		L"body",
-		L"head",
-		L"weapon"
-	};*/
-
-	//enum PIKMIN
-	//{
-	//	PIK_BODY,
-	//	PIK_LEFTFOOT,
-	//	PIK_RIGHTFOOT,
-	//	PIK_LEFTARM,
-	//	PIK_RIGHTARM,
-	//	PIK_HEAD,
-	//	PIK_FLOWER,
-
-	//	PIK_NUM
-	//};
-
-	//wchar_t* PARTS_NAME[PIK_NUM] = {
-	//	L"bodyPik",
-	//	L"leftFootPik",
-	//	L"rightFootPik",
-	//	L"leftArmPik",
-	//	L"rightArmPik",
-	//	L"pikmin",
-	//	L"flowerPik"
-	//};
 
     Game();
 
@@ -117,7 +78,6 @@ private:
     // Rendering loop timer.
     DX::StepTimer                                   m_timer;
 
-	//std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_batch;	// プリミティブバッチ
 	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionNormal>> m_batch;	// プリミティブバッチ
 	std::unique_ptr<DirectX::BasicEffect> m_effect;										// エフェクト
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;							// レイアウト
@@ -133,26 +93,9 @@ private:
 	std::unique_ptr<DirectX::EffectFactory> m_factory;									// エフェクトファクトリ
 	Obj3d m_objGround;																	// 地面の３Ｄオブジェクト
 	Obj3d m_objSkyDome;																	// 天球の３Ｄオブジェクト
-	//std::unique_ptr<DirectX::Model> m_modelBall;										// ボールモデル
-	//std::unique_ptr<DirectX::Model> m_modelTeaPot;									// ティーポットモデル
-	//Obj3d m_objTank;																	// タンクの３Ｄオブジェクト
-	//Obj3d m_objBody;																	// 胴体の３Ｄオブジェクト
 
-	//DirectX::SimpleMath::Vector3 m_tankPos;											// タンクの位置
-	//float m_tankRotate;																// タンクの角度
+	std::unique_ptr<Player> m_player;													// プレイヤーオブジェクト
 
-	//DirectX::SimpleMath::Matrix m_worldBall;											// 球ワールド行列
-	//DirectX::SimpleMath::Matrix m_worldTeaPot;										// ティーポットワールド行列
-	int m_time;																			// 時間
-
-	Player m_player;
-	//std::vector<Obj3d> m_objPlayer;														// 自機の３Ｄオブジェクト
-
-	//int m_distance[20];																// ティーポット用距離
-	//int m_digree[20];																	// ティーポット用角度
-
-	bool m_isTurnFlg;																	// 前宙フラグ
-	bool m_isDuckingFlg;																// 股開きフラグ
-	bool m_isFlowerFlg;																	// 花フラグ
-	float cameraY;																		// カメラ回転
+	static const int NUM_ENEMY = 10;
+	Enemy m_enemy[NUM_ENEMY];															// 敵オブジェクト
 };

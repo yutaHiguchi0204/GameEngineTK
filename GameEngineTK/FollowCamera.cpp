@@ -24,6 +24,10 @@ FollowCamera::FollowCamera(int width, int height)
 	m_keyboard = nullptr;
 
 	isThirdPersonFlg = true;
+
+	m_pPlayer = nullptr;
+
+	m_cameraY = 0.0f;
 }
 
 // 仮想デストラクタ
@@ -46,6 +50,24 @@ void FollowCamera::Update()
 	{
 		// フラグの切り替え
 		isThirdPersonFlg = !isThirdPersonFlg;
+	}
+
+	// 目標座標の設定
+	if (m_pPlayer)
+	{
+		SetTargetPos(m_pPlayer->GetParts(Player::PARTS_BODY).GetTranslate());
+		SetTargetAngle(m_pPlayer->GetParts(Player::PARTS_BODY).GetRotate().y + m_cameraY);
+	}
+
+	// カメラ視点
+	{
+		// ←キーが押されたらカメラの視点を時計回りにずらす
+		if (keyboardState.Left)
+			m_cameraY -= 0.05f;
+
+		// →キーが押されたらカメラの視点を反時計回りにずらす
+		if (keyboardState.Right)
+			m_cameraY += 0.05f;
 	}
 
 	// 視点、参照点座標
