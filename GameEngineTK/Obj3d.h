@@ -39,34 +39,39 @@ public:
 
 private:
 
-	std::unique_ptr<DirectX::Model>		m_model;															// ３Ｄモデル
+	std::unique_ptr<DirectX::Model>		m_model;																					// ３Ｄモデル
 
-	DirectX::SimpleMath::Vector3		m_scale;															// スケーリング
-	DirectX::SimpleMath::Vector3		m_rotate;															// 回転角
-	DirectX::SimpleMath::Vector3		m_translate;														// 平行移動
+	DirectX::SimpleMath::Vector3		m_scale;																					// スケーリング
+	DirectX::SimpleMath::Vector3		m_rotate;																					// 回転角（オイラー角）
+	DirectX::SimpleMath::Vector3		m_translate;																				// 平行移動
 
-	DirectX::SimpleMath::Matrix			m_world;															// ワールド行列
-	Obj3d*								m_pParent;															// 親の３Ｄオブジェクト
+	DirectX::SimpleMath::Quaternion		m_quaternion;																				// 回転角（クォータニオン）
+	bool								m_useQuaternion;																			// クォータニオンを使ってるかどうか
+
+	DirectX::SimpleMath::Matrix			m_world;																					// ワールド行列
+	Obj3d*								m_pParent;																					// 親の３Ｄオブジェクト
 
 public:
-	Obj3d();																								// コンストラクタ
+	Obj3d();																														// コンストラクタ
 
-	void Update();																							// 更新
-	void Draw();																							// 描画
+	void Update();																													// 更新
+	void Draw();																													// 描画
 
-	void LoadModel(const wchar_t* fileName);																// モデルのロード
+	void LoadModel(const wchar_t* fileName);																						// モデルのロード
 
-	void SetScale(const DirectX::SimpleMath::Vector3& scale)			{ m_scale = scale; };				// スケーリングの設定
-	void SetRotate(const DirectX::SimpleMath::Vector3& rotate)			{ m_rotate = rotate; };				// 回転角の設定
-	void SetTranslate(const DirectX::SimpleMath::Vector3& translate)	{ m_translate = translate; };		// 平行移動の設定
+	void SetScale(const DirectX::SimpleMath::Vector3& scale)			{ m_scale = scale; };										// スケーリングの設定
+	void SetRotate(const DirectX::SimpleMath::Vector3& rotate)			{ m_rotate = rotate; m_useQuaternion = false; };			// 回転角の設定（オイラー角）
+	void SetRotateQ(const DirectX::SimpleMath::Quaternion& rotate)		{ m_quaternion = rotate; m_useQuaternion = true; };			// 回転角の設定（クォータニオン）
+	bool IsUseQuaternion()												{ return m_useQuaternion; };								// 発射中かどうか
+	void SetTranslate(const DirectX::SimpleMath::Vector3& translate)	{ m_translate = translate; };								// 平行移動の設定
 
-	void SetParent(Obj3d* obj)											{ m_pParent = obj; };				// 親の３Ｄオブジェクトを設定
+	void SetParent(Obj3d* obj)											{ m_pParent = obj; };										// 親の３Ｄオブジェクトを設定
 
-	const DirectX::SimpleMath::Vector3 GetScale()						{ return m_scale; };				// スケーリングを取得
-	const DirectX::SimpleMath::Vector3 GetRotate()						{ return m_rotate; };				// 回転角を取得
-	const DirectX::SimpleMath::Vector3 GetTranslate()					{ return m_translate; };			// 平行移動の取得
+	const DirectX::SimpleMath::Vector3 GetScale()						{ return m_scale; };										// スケーリングを取得
+	const DirectX::SimpleMath::Vector3 GetRotate()						{ return m_rotate; };										// 回転角を取得
+	const DirectX::SimpleMath::Vector3 GetTranslate()					{ return m_translate; };									// 平行移動の取得
 
-	const DirectX::SimpleMath::Matrix GetWorldMatrix()					{ return m_world; };				// ワールド行列の取得
+	const DirectX::SimpleMath::Matrix GetWorldMatrix()					{ return m_world; };										// ワールド行列の取得
 
-	Obj3d* GetParent()													{ return m_pParent; };				// 親の３Ｄオブジェクトの取得
+	Obj3d* GetParent()													{ return m_pParent; };										// 親の３Ｄオブジェクトの取得
 };

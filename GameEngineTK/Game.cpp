@@ -191,6 +191,13 @@ void Game::Update(DX::StepTimer const& timer)
 				m_player->SetState(Player::STATE_SPLITS, true);
 			else
 				m_player->SetState(Player::STATE_SPLITS, false);
+
+			// ‚aƒL[‚ª‰Ÿ‚³‚ê‚½‚ç’e‚ğ”­Ë
+			if (kb.B)
+			{
+				if		(Player::m_isFire)	m_player->ResetBurret();
+				else						m_player->FireBurret();
+			}
 		}
 	}
 }

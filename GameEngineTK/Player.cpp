@@ -13,6 +13,8 @@ using namespace DirectX;
 using namespace DirectX::SimpleMath;
 using namespace std;
 
+bool Player::m_isFire;
+
 /* =====================================================================
 //! 内　容		初期化
 //! 引　数		なし
@@ -37,6 +39,8 @@ void Player::Initialize()
 	{
 		m_isState[i] = false;
 	}
+
+	m_isFire = false;
 }
 
 /* =====================================================================
@@ -257,6 +261,56 @@ void Player::Splits()
 }
 
 /* =====================================================================
+//! 内　容		パーツを発射させる
+//! 引　数		なし
+//! 戻り値		なし
+===================================================================== */
+void Player::FireBurret()
+{
+	m_isFire = false;
+
+	// 発射するパーツのワールド行列を取得
+	Matrix worldM = m_parts[PARTS_FLOWER].GetWorldMatrix();
+
+	// ワールド行列から各要素を抽出する
+	Vector3 scale;
+	Quaternion rotate;
+	Vector3 translate;
+
+	worldM.Decompose(scale, rotate, translate);
+
+	// 発射パーツを親から分離させて独立
+	m_parts[PARTS_FLOWER].SetParent(nullptr);
+	m_parts[PARTS_FLOWER].SetScale(scale);
+	m_parts[PARTS_FLOWER].SetRotateQ(rotate);
+	m_parts[PARTS_FLOWER].SetTranslate(translate);
+
+	// 弾丸の速度を設定
+	m_bulletVel = Vector3(0.0f, 0.0f, -0.5f);
+	m_bulletVel = Vector3::Transform(m_bulletVel, rotate);
+
+	m_isFire = true;
+}
+
+/* =====================================================================
+//! 内　容		発射したパーツをリセットする
+//! 引　数		なし
+//! 戻り値		なし
+===================================================================== */
+void Player::ResetBurret()
+{
+	if (!m_isFire) return;
+
+	// 親子関係を戻す
+	m_parts[PARTS_FLOWER].SetParent(&m_parts[PARTS_HEAD]);
+
+	// それぞれの要素を設定
+	m_parts[PARTS_FLOWER].SetScale(Vector3(1.0f, 1.0f, 1.0f));
+	m_parts[PARTS_FLOWER].SetRotate(Vector3(0.0f, 0.0f, 0.0f));
+	m_parts[PARTS_FLOWER].SetTranslate(Vector3(0.0f, 1.2f, 0.1f));
+}
+
+/* =====================================================================
 //! 内　容		パーツを取得する
 //! 引　数		パーツ（PLAYER_PARTS）
 //! 戻り値		パーツオブジェクト（Obj3d*）
@@ -295,6 +349,13 @@ void Player::Update()
 
 		// 股割りする
 		Splits();
+	}
+
+	// 発射されたパーツの処理
+	if (m_isFire)
+	{
+		Vector3 pos = m_parts[PARTS_FLOWER].GetTranslate();
+		m_parts[PARTS_FLOWER].SetTranslate(pos + m_bulletVel);
 	}
 
 	// 花を回転させる

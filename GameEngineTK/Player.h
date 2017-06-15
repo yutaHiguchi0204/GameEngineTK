@@ -42,11 +42,15 @@ public:
 		STATE_NUM
 	};
 
+	static bool m_isFire;
+
 private:
 
 	std::vector<Obj3d> m_parts;							// プレイヤーのパーツ
 
 	bool m_isState[STATE_NUM];							// ステート
+
+	DirectX::SimpleMath::Vector3 m_bulletVel;			// 弾丸の速度ベクトル
 
 public:
 
@@ -66,6 +70,9 @@ public:
 	void ForwardSomersault();							// 前方宙返り
 	void FloatFlowers();								// 花を浮かせる
 	void Splits();										// 股割り（開脚）
+
+	void FireBurret();									// パーツを発射する
+	void ResetBurret();									// 発射させたパーツをリセットする
 
 	Obj3d& GetParts(PLAYER_PARTS parts);				// パーツを取得
 

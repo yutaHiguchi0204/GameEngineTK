@@ -47,6 +47,9 @@ Obj3d::Obj3d()
 
 	// 親の３Ｄオブジェクトを初期化
 	m_pParent = nullptr;
+
+	// デフォルトではオイラー角で回転角を計算
+	m_useQuaternion = false;
 }
 
 /// <summary>
@@ -60,10 +63,18 @@ void Obj3d::Update()
 		Matrix scaleMat = Matrix::CreateScale(m_scale);
 
 		// 回転行列
-		Matrix rotMatZ = Matrix::CreateRotationZ(m_rotate.z);
-		Matrix rotMatX = Matrix::CreateRotationX(m_rotate.x);
-		Matrix rotMatY = Matrix::CreateRotationY(m_rotate.y);
-		Matrix rotMat = rotMatZ * rotMatX * rotMatY;
+		Matrix rotMat;
+		if (m_useQuaternion)			// クォータニオンで計算
+		{
+			rotMat = Matrix::CreateFromQuaternion(m_quaternion);
+		}
+		else							// オイラー角で計算
+		{
+			Matrix rotMatZ = Matrix::CreateRotationZ(m_rotate.z);
+			Matrix rotMatX = Matrix::CreateRotationX(m_rotate.x);
+			Matrix rotMatY = Matrix::CreateRotationY(m_rotate.y);
+			rotMat = rotMatZ * rotMatX * rotMatY;
+		}
 
 		// 平行移動行列
 		Matrix transMat = Matrix::CreateTranslation(m_translate);
