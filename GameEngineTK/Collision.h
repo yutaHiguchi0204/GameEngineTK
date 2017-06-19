@@ -1,5 +1,5 @@
 //
-// Collisiom.h
+// Collision.h
 // Õ“Ë”»’è‚ÌƒNƒ‰ƒX
 //
 #pragma once

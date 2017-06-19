@@ -47,6 +47,19 @@ void Enemy::Initialize()
 
 	// タイマーの初期化
 	m_timer = 0;
+
+	// 当たり判定を設定
+	{
+		// 初期化
+		m_collisionNodeBullet.Initialize();
+
+		// 親の設定
+		m_collisionNodeBullet.SetParent(&m_parts[PARTS_BODY]);
+
+		// パーツ設定
+		m_collisionNodeBullet.SetTrans(Vector3(0.0f, 0.5f, 0.0f));
+		m_collisionNodeBullet.SetLocalRadius(1.0f);
+	}
 }
 
 /* =====================================================================
@@ -331,6 +344,9 @@ void Enemy::Update()
 
 	// タイマー計測
 	m_timer++;
+
+	// 当たり判定の更新
+	m_collisionNodeBullet.Update();
 }
 
 /* =====================================================================
@@ -345,4 +361,7 @@ void Enemy::Draw()
 	{
 		(*itr).Draw();
 	}
+
+	// 当たり判定の描画
+	m_collisionNodeBullet.Draw();
 }

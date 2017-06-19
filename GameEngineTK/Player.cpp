@@ -41,6 +41,19 @@ void Player::Initialize()
 	}
 
 	m_isFire = false;
+
+	// 弾丸用の当たり判定を設定
+	{
+		// 初期化
+		m_collisionNodeBullet.Initialize();
+
+		// 親の設定
+		m_collisionNodeBullet.SetParent(&m_parts[PARTS_FLOWER]);
+
+		// パーツ設定
+		m_collisionNodeBullet.SetTrans(Vector3(0.0f, 0.0f, 0.0f));
+		m_collisionNodeBullet.SetLocalRadius(0.3f);
+	}
 }
 
 /* =====================================================================
@@ -360,6 +373,9 @@ void Player::Update()
 
 	// 花を回転させる
 	RotateFlower();
+
+	// 当たり判定の更新
+	m_collisionNodeBullet.Update();
 }
 
 /* =====================================================================
@@ -369,9 +385,12 @@ void Player::Update()
 ===================================================================== */
 void Player::Draw()
 {
-	// 各パーツの更新
+	// 各パーツの描画
 	for (vector<Obj3d>::iterator itr = m_parts.begin(); itr != m_parts.end(); itr++)
 	{
 		(*itr).Draw();
 	}
+
+	// 当たり判定の描画
+	m_collisionNodeBullet.Draw();
 }
