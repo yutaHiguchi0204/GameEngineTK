@@ -89,6 +89,7 @@ private:
 	std::unique_ptr<FollowCamera> m_camera;												// カメラ
 	std::unique_ptr<DebugCamera> m_debugCamera;											// デバッグカメラ
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;										// キーボード
+	std::unique_ptr<DirectX::Keyboard::KeyboardStateTracker> m_keyboardTracker;			// キーボードトラッカー
 
 	std::unique_ptr<DirectX::EffectFactory> m_factory;									// エフェクトファクトリ
 	Obj3d m_objGround;																	// 地面の３Ｄオブジェクト
@@ -97,5 +98,5 @@ private:
 	std::unique_ptr<Player> m_player;													// プレイヤーオブジェクト
 
 	static const int NUM_ENEMY = 10;
-	Enemy m_enemy[NUM_ENEMY];															// 敵オブジェクト
+	std::vector<std::unique_ptr<Enemy>> m_enemy;										// 敵オブジェクト
 };

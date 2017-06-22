@@ -53,7 +53,7 @@ private:
 
 	int m_timer;										// タイマー
 
-	SphereNode m_collisionNodeBullet;					// 弾丸用の当たり判定
+	SphereNode m_collisionSphereNode;					// 当たり判定ノード
 
 public:
 
@@ -76,7 +76,7 @@ public:
 
 	Obj3d& GetParts(ENEMY_PARTS parts);					// パーツを取得
 
-	const SphereNode& GetCollisionNodeBullet() { return m_collisionNodeBullet; };
+	const SphereNode& GetCollisionNodeBody() { return m_collisionSphereNode; };
 
 	void Update();										// 更新処理
 	void Draw();										// 描画処理

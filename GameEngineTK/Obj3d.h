@@ -74,4 +74,6 @@ public:
 	const DirectX::SimpleMath::Matrix GetWorldMatrix()					{ return m_world; };										// ワールド行列の取得
 
 	Obj3d* GetParent()													{ return m_pParent; };										// 親の３Ｄオブジェクトの取得
+
+	void DisableLighting();																											// ライティングを無効にする
 };

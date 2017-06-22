@@ -321,6 +321,8 @@ void Player::ResetBurret()
 	m_parts[PARTS_FLOWER].SetScale(Vector3(1.0f, 1.0f, 1.0f));
 	m_parts[PARTS_FLOWER].SetRotate(Vector3(0.0f, 0.0f, 0.0f));
 	m_parts[PARTS_FLOWER].SetTranslate(Vector3(0.0f, 1.2f, 0.1f));
+
+	m_isFire = false;
 }
 
 /* =====================================================================
