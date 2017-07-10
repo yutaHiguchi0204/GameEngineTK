@@ -9,6 +9,9 @@
 // 名前空間
 using namespace DirectX::SimpleMath;
 
+// 静的メンバの定義
+bool CollisionNode::m_isDebugVisible = true;
+
 /// <summary>
 /// CollisionNodeの親設定関数
 /// </summary>

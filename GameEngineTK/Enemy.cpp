@@ -51,14 +51,14 @@ void Enemy::Initialize()
 	// 当たり判定を設定
 	{
 		// 初期化
-		m_collisionSphereNode.Initialize();
+		m_collisionNodeBody.Initialize();
 
 		// 親の設定
-		m_collisionSphereNode.SetParent(&m_parts[PARTS_BODY]);
+		m_collisionNodeBody.SetParent(&m_parts[PARTS_BODY]);
 
 		// パーツ設定
-		m_collisionSphereNode.SetTrans(Vector3(0.0f, 0.5f, 0.0f));
-		m_collisionSphereNode.SetLocalRadius(1.0f);
+		m_collisionNodeBody.SetTrans(Vector3(0.0f, 0.5f, 0.0f));
+		m_collisionNodeBody.SetLocalRadius(1.0f);
 	}
 }
 
@@ -296,8 +296,8 @@ void Enemy::Splits()
 
 /* =====================================================================
 //! 内　容		パーツを取得する
-//! 引　数		パーツ（PLAYER_PARTS）
-//! 戻り値		パーツオブジェクト（Obj3d*）
+//! 引　数		パーツ（ENEMY_PARTS）
+//! 戻り値		パーツオブジェクト（Obj3d&）
 ===================================================================== */
 Obj3d& Enemy::GetParts(ENEMY_PARTS parts)
 {
@@ -346,7 +346,7 @@ void Enemy::Update()
 	m_timer++;
 
 	// 当たり判定の更新
-	m_collisionSphereNode.Update();
+	m_collisionNodeBody.Update();
 }
 
 /* =====================================================================
@@ -363,5 +363,5 @@ void Enemy::Draw()
 	}
 
 	// 当たり判定の描画
-	m_collisionSphereNode.Draw();
+	m_collisionNodeBody.Draw();
 }

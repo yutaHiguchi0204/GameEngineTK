@@ -15,6 +15,8 @@ protected:
 	Obj3d m_obj;
 	DirectX::SimpleMath::Vector3 m_trans;
 
+	static bool m_isDebugVisible;
+
 public:
 	virtual void Initialize() = 0;				// 初期化処理
 	virtual void Update() = 0;					// 更新処理
@@ -23,6 +25,9 @@ public:
 	void SetParent(Obj3d* parent);
 
 	void SetTrans(const DirectX::SimpleMath::Vector3& trans) { m_trans = trans; };
+
+	static void SetDebugVisible(bool flg) { m_isDebugVisible = flg; };
+	static bool GetDebugVisible() { return m_isDebugVisible; };
 };
 
 // 球の当たり判定ノード

@@ -48,7 +48,15 @@ void Game::Initialize(HWND window, int width, int height)
 	// カメラにキーボードを設定する
 	m_camera->SetKeyboard(m_keyboard.get());
 
+	// ３Ｄオブジェクトの静的メンバを初期化
 	Obj3d::InitializeStatic(m_d3dDevice, m_d3dContext, m_camera.get());
+
+	// 地形クラスの初期化
+	LandShapeCommonDef def;
+	def.pDevice = m_d3dDevice.Get();
+	def.pDeviceContext = m_d3dContext.Get();
+	def.pCamera = m_camera.get();
+	LandShape::InitializeCommon(def);
 
 	//m_batch = make_unique<PrimitiveBatch<VertexPositionColor>>(m_d3dContext.Get());
 	m_batch = make_unique<PrimitiveBatch<VertexPositionNormal>>(m_d3dContext.Get());
@@ -85,12 +93,11 @@ void Game::Initialize(HWND window, int width, int height)
 	m_factory->SetDirectory(L"Resources");
 
 	// モデルの読み込み
-	m_objGround.LoadModel(L"Resources/ground_200m.cmo");
 	m_objSkyDome.LoadModel(L"Resources/skyDome.cmo");
 
 	// 地面と天球のライティングを無効にする
-	m_objGround.DisableLighting();
 	m_objSkyDome.DisableLighting();
+	m_landshape.DisableLighting();
 
 	// 自機パーツの読み込み
 	m_player = std::make_unique<Player>();
@@ -103,6 +110,12 @@ void Game::Initialize(HWND window, int width, int height)
 		m_enemy[i] = make_unique<Enemy>();
 		m_enemy[i]->Initialize();
 	}
+
+	// モデルエフェクトマネージャの読み込み
+	m_effectManager = ModelEffectManager::getInstance();
+
+	// 地形モデルの読み込み（landshapeファイル名、cmoファイル名）
+	m_landshape.Initialize(L"ground_200m", L"ground_200m");
 
 	// カメラにプレイヤーを渡す
 	m_camera->SetPlayer(m_player.get());
@@ -146,8 +159,10 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 	// フィールドの更新
-	m_objGround.Update();
 	m_objSkyDome.Update();
+
+	// 地形の更新
+	m_landshape.Update();
 
 	// プレイヤーの更新
 	m_player->Update();
@@ -156,6 +171,59 @@ void Game::Update(DX::StepTimer const& timer)
 	for (std::vector<std::unique_ptr<Enemy>>::iterator itr = m_enemy.begin(); itr != m_enemy.end(); itr++)
 	{
 		(*itr)->Update();
+	}
+
+	// パーティクルの更新
+	m_effectManager->Update();
+
+	// 自機の地形へのめり込みを排斥する
+	{
+		// 自機の当たり判定を取得
+		Sphere sphere = m_player->GetCollisionNodeBody();
+
+		// 自機のワールド座標を取得
+		Vector3 trans = m_player->GetParts(Player::PLAYER_PARTS::PARTS_BODY).GetTranslate();
+
+		// 球の中心から自機のセンターへのベクトル
+		Vector3 sphere2player = trans - sphere.center;
+
+		// めり込み排斥ベクトル
+		Vector3 reject;
+
+		// 地形と球の当たり判定
+		if (m_landshape.IntersectSphere(sphere, &reject))
+		{
+			// めり込みを解消する
+			sphere.center += reject;
+		}
+
+		// 自機の移動
+		m_player->GetParts(Player::PLAYER_PARTS::PARTS_BODY).SetTranslate(sphere.center + sphere2player);
+	}
+
+	// 自機が地面に立つ処理
+	{
+		// 自機の頭から足元への線分
+		Segment playerSegment;
+
+		// 自機のワールド座標を取得
+		Vector3 trans = m_player->GetParts(Player::PLAYER_PARTS::PARTS_BODY).GetTranslate();
+
+		playerSegment.start = trans + Vector3(0, 1, 0);
+		playerSegment.end   = trans + Vector3(0, -0.5f, 0);
+
+		// 交点座標
+		Vector3 inter;
+
+		// 地形と線分の当たり判定（レイキャスティング）
+		if (m_landshape.IntersectSegment(playerSegment, &inter))
+		{
+			// y座標のみ交点の位置に移動
+			trans.y = inter.y;
+		}
+
+		// 自機の移動
+		m_player->GetParts(Player::PLAYER_PARTS::PARTS_BODY).SetTranslate(trans);
 	}
 
 	// 弾丸と敵の当たり判定
@@ -173,6 +241,19 @@ void Game::Update(DX::StepTimer const& timer)
 			// この２つが当たっていたら
 			if (CheckSphere2Sphere(bulletSphere, enemySphere))
 			{
+				// パーティクルを出す
+				m_effectManager->Entry(
+					L"Resources/effect.cmo", 
+					10, 
+					Vector3((*itr)->GetParts(Enemy::PARTS_BODY).GetTranslate().x, (*itr)->GetParts(Enemy::PARTS_BODY).GetTranslate().y + 1.0f, (*itr)->GetParts(Enemy::PARTS_BODY).GetTranslate().z),
+					Vector3(0.0f),
+					Vector3(0.0f),
+					(*itr)->GetParts(Enemy::PARTS_BODY).GetRotate(),
+					(*itr)->GetParts(Enemy::PARTS_BODY).GetRotate(),
+					Vector3(0.0f),
+					Vector3(5.0f)
+				);
+
 				// 敵を消す
 				itr = m_enemy.erase(itr);
 			}
@@ -184,6 +265,11 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 	}
 
+	// 敵を全員倒したらクリア（自動前宙）
+	bool isClear = false;
+	if (m_enemy.empty())
+		isClear = true;
+
 	// キー状態を取得
 	Keyboard::State kb = m_keyboard->GetState();
 	m_keyboardTracker->Update(kb);
@@ -192,51 +278,59 @@ void Game::Update(DX::StepTimer const& timer)
 	{
 		// 移動
 		{
-			// Ｗキーが押されたら前進
-			if (kb.W)
-				m_player->SetState(Player::STATE_MOVE_FORWARD, true);
-			else
-				m_player->SetState(Player::STATE_MOVE_FORWARD, false);
-
-			// Ｓキーが押されたら後退
-			if (kb.S)
-				m_player->SetState(Player::STATE_MOVE_BACK, true);
-			else
-				m_player->SetState(Player::STATE_MOVE_BACK, false);
-
-			// Ａキーが押されたら左旋回
-			if (kb.A)
-				m_player->SetState(Player::STATE_MOVE_LEFT, true);
-			else
-				m_player->SetState(Player::STATE_MOVE_LEFT, false);
-
-			// Ｄキーが押されたら右旋回
-			if (kb.D)
-				m_player->SetState(Player::STATE_MOVE_RIGHT, true);
-			else
-				m_player->SetState(Player::STATE_MOVE_RIGHT, false);
-
-			// Spaceキーが押されたら前方宙返り
-			if (kb.Space)
-				m_player->SetState(Player::STATE_TURN, true);
-
-			// ↑キーが押されたら花を浮かせる
-			if (kb.Up)
-				m_player->SetState(Player::STATE_FLOAT, true);
-			else
-				m_player->SetState(Player::STATE_FLOAT, false);
-
-			// ↓キーが押されたら股割り
-			if (kb.Down)
-				m_player->SetState(Player::STATE_SPLITS, true);
-			else
-				m_player->SetState(Player::STATE_SPLITS, false);
-
-			// Ｂキーが押されたら弾を発射
-			if (m_keyboardTracker->IsKeyPressed(Keyboard::Keys::B))
+			if (!isClear)
 			{
-				if (Player::m_isFire)	m_player->ResetBurret();
-				else					m_player->FireBurret();
+				// Ｗキーが押されたら前進
+				if (kb.W)
+					m_player->SetState(Player::STATE_MOVE_FORWARD, true);
+				else
+					m_player->SetState(Player::STATE_MOVE_FORWARD, false);
+
+				// Ｓキーが押されたら後退
+				if (kb.S)
+					m_player->SetState(Player::STATE_MOVE_BACK, true);
+				else
+					m_player->SetState(Player::STATE_MOVE_BACK, false);
+
+				// Ａキーが押されたら左旋回
+				if (kb.A)
+					m_player->SetState(Player::STATE_MOVE_LEFT, true);
+				else
+					m_player->SetState(Player::STATE_MOVE_LEFT, false);
+
+				// Ｄキーが押されたら右旋回
+				if (kb.D)
+					m_player->SetState(Player::STATE_MOVE_RIGHT, true);
+				else
+					m_player->SetState(Player::STATE_MOVE_RIGHT, false);
+
+				// Spaceキーが押されたら前方宙返り
+				if (kb.Space)
+					m_player->SetState(Player::STATE_TURN, true);
+
+				// ↑キーが押されたら花を浮かせる
+				if (kb.Up)
+					m_player->SetState(Player::STATE_FLOAT, true);
+				else
+					m_player->SetState(Player::STATE_FLOAT, false);
+
+				// ↓キーが押されたら股割り
+				if (kb.Down)
+					m_player->SetState(Player::STATE_SPLITS, true);
+				else
+					m_player->SetState(Player::STATE_SPLITS, false);
+
+				// Ｂキーが押されたら弾を発射
+				if (m_keyboardTracker->IsKeyPressed(Keyboard::Keys::B))
+				{
+					if (Player::m_isFire)	m_player->ResetBurret();
+					else					m_player->FireBurret();
+				}
+			}
+			else
+			{
+				// パーティクルの初期設定
+				m_player->SetState(Player::STATE_TURN, true);
 			}
 		}
 	}
@@ -285,8 +379,10 @@ void Game::Render()
 	m_d3dContext->IASetInputLayout(m_inputLayout.Get());
 
 	// モデルの描画
-	m_objGround.Draw();
 	m_objSkyDome.Draw();
+
+	// 地形の描画
+	m_landshape.Draw();
 
 	// プレイヤーの描画
 	m_player->Draw();
@@ -296,6 +392,9 @@ void Game::Render()
 	{
 		(*itr)->Draw();
 	}
+
+	// パーティクルの描画
+	m_effectManager->Draw();
 
 	m_batch->Begin();
 	m_batch->End();

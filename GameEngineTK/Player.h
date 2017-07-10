@@ -54,6 +54,7 @@ private:
 	DirectX::SimpleMath::Vector3 m_bulletVel;			// 弾丸の速度ベクトル
 
 	SphereNode m_collisionNodeBullet;					// 弾丸用の当たり判定
+	SphereNode m_collisionNodeBody;						// 当たり判定ノード
 
 public:
 
@@ -79,7 +80,11 @@ public:
 
 	Obj3d& GetParts(PLAYER_PARTS parts);				// パーツを取得
 
+	// 弾の当たり判定を取得する
 	const SphereNode& GetCollisionNodeBullet() { return m_collisionNodeBullet; };
+
+	// 全身の当たり判定を取得する
+	const SphereNode& GetCollisionNodeBody() { return m_collisionNodeBody; };
 
 	void Update();										// 更新処理
 	void Draw();										// 描画処理

@@ -12,6 +12,7 @@
 #include <CommonStates.h>
 #include <Effects.h>
 #include <SimpleMath.h>
+#include <map>
 #include <Model.h>
 
 #include "Camera.h"
@@ -64,6 +65,8 @@ public:
 	void SetRotateQ(const DirectX::SimpleMath::Quaternion& rotate)		{ m_quaternion = rotate; m_useQuaternion = true; };			// 回転角の設定（クォータニオン）
 	bool IsUseQuaternion()												{ return m_useQuaternion; };								// 発射中かどうか
 	void SetTranslate(const DirectX::SimpleMath::Vector3& translate)	{ m_translate = translate; };								// 平行移動の設定
+
+	void SetWorldMatrix(const DirectX::SimpleMath::Matrix& mat)			{ m_world = mat; };											// ワールド行列の設定
 
 	void SetParent(Obj3d* obj)											{ m_pParent = obj; };										// 親の３Ｄオブジェクトを設定
 

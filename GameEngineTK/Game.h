@@ -17,6 +17,8 @@
 #include "Enemy.h"
 #include "FollowCamera.h"
 #include "DebugCamera.h"
+#include "LandShape.h"
+#include "ModelEffect.h"
 #include "Player.h"
 
 #include "StepTimer.h"
@@ -92,11 +94,14 @@ private:
 	std::unique_ptr<DirectX::Keyboard::KeyboardStateTracker> m_keyboardTracker;			// キーボードトラッカー
 
 	std::unique_ptr<DirectX::EffectFactory> m_factory;									// エフェクトファクトリ
-	Obj3d m_objGround;																	// 地面の３Ｄオブジェクト
 	Obj3d m_objSkyDome;																	// 天球の３Ｄオブジェクト
 
 	std::unique_ptr<Player> m_player;													// プレイヤーオブジェクト
 
 	static const int NUM_ENEMY = 10;
 	std::vector<std::unique_ptr<Enemy>> m_enemy;										// 敵オブジェクト
+
+	ModelEffectManager* m_effectManager;												// モデルエフェクトマネージャ
+
+	LandShape m_landshape;																// 地形
 };
