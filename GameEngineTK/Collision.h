@@ -52,4 +52,4 @@ void ComputeTriangle(const DirectX::SimpleMath::Vector3& _p0, const DirectX::Sim
 bool CheckSphere2Triangle(const Sphere& _sphere, const Triangle& _tri, DirectX::SimpleMath::Vector3* _inter);
 
 // ü•ª‚ÆOŠpŒ`‚Ì“–‚½‚è”»’è
-bool CheckSegment2Triangle(const Segment& _segment, const Triangle& _triangle, DirectX::SimpleMath::Vector3 *_inter)
+bool CheckSegment2Triangle(const Segment& _segment, const Triangle& _triangle, DirectX::SimpleMath::Vector3 *_inter);

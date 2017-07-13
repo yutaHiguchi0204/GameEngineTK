@@ -15,6 +15,11 @@ class Player
 {
 public:
 
+	// 定数
+	const float GRAVITY_ACC      = 0.03f;		// 重力加速度（m/f^2）
+	const float JUMP_SPEED_FIRST = 0.5f;		// ジャンプの初速（m/f）
+	const float FALL_SPEED_MAX = 0.3f;			// 落下速度の制限（m/f）
+
 	// プレイヤーのパーツ
 	enum PLAYER_PARTS
 	{
@@ -39,6 +44,7 @@ public:
 		STATE_TURN,
 		STATE_FLOAT,
 		STATE_SPLITS,
+		STATE_JUMP,
 
 		STATE_NUM
 	};
@@ -51,6 +57,8 @@ private:
 
 	bool m_isState[STATE_NUM];							// ステート
 
+	bool m_isJump;										// 落下中フラグ
+	DirectX::SimpleMath::Vector3 m_velocity;			// 速度
 	DirectX::SimpleMath::Vector3 m_bulletVel;			// 弾丸の速度ベクトル
 
 	SphereNode m_collisionNodeBullet;					// 弾丸用の当たり判定
@@ -71,6 +79,9 @@ public:
 	void RotateFlower();								// 花を回転させる
 
 	void Move();										// 移動
+	void StartJump();									// ジャンプ
+	void StartFall();									// 落下開始
+	void StopJump();									// ジャンプ（落下）終了
 	void ForwardSomersault();							// 前方宙返り
 	void FloatFlowers();								// 花を浮かせる
 	void Splits();										// 股割り（開脚）
@@ -79,6 +90,8 @@ public:
 	void ResetBurret();									// 発射させたパーツをリセットする
 
 	Obj3d& GetParts(PLAYER_PARTS parts);				// パーツを取得
+
+	const DirectX::SimpleMath::Vector3& GetVelocity() { return m_velocity; };
 
 	// 弾の当たり判定を取得する
 	const SphereNode& GetCollisionNodeBullet() { return m_collisionNodeBullet; };

@@ -65,8 +65,11 @@ void Player::Initialize()
 
 		// パーツ設定
 		m_collisionNodeBody.SetTrans(Vector3(0.0f, 0.5f, 0.0f));
-		m_collisionNodeBody.SetLocalRadius(1.0f);
+		m_collisionNodeBody.SetLocalRadius(0.5f);
 	}
+
+	// 落下中フラグの初期化
+	m_isJump = false;
 }
 
 /* =====================================================================
@@ -197,6 +200,51 @@ void Player::Move()
 }
 
 /* =====================================================================
+//! 内　容		ジャンプ
+//! 引　数		なし
+//! 戻り値		なし
+===================================================================== */
+void Player::StartJump()
+{
+	if (m_isState[STATE_JUMP] && !m_isJump)
+	{
+		// 上方向の初速を設定
+		m_velocity.y = JUMP_SPEED_FIRST;
+
+		m_isJump = true;
+	}
+}
+
+/* =====================================================================
+//! 内　容		落下開始
+//! 引　数		なし
+//! 戻り値		なし
+===================================================================== */
+void Player::StartFall()
+{
+	if (m_isState[STATE_JUMP] && !m_isJump)
+	{
+		// 上方向の初速を設定
+		m_velocity.y = 0.0f;
+
+		m_isJump = true;
+	}
+}
+
+/* =====================================================================
+//! 内　容		ジャンプ（落下）終了
+//! 引　数		なし
+//! 戻り値		なし
+===================================================================== */
+void Player::StopJump()
+{
+	m_isJump = false;
+	m_isState[STATE_JUMP] = false;
+
+	m_velocity = Vector3::Zero;
+}
+
+/* =====================================================================
 //! 内　容		前方宙返り
 //! 引　数		なし
 //! 戻り値		なし
@@ -267,7 +315,7 @@ void Player::Splits()
 	if (m_isState[STATE_SPLITS])
 	{
 		// 股を開く
-		if (pos.y > 0.15f)
+		if (!m_isJump && pos.y > 0.15f)
 		{
 			m_parts[PARTS_BODY].SetTranslate(pos + Vector3(0.0f, -0.02f, 0.0f));
 			m_parts[PARTS_LEFTFOOT].SetRotate(angleLeft + Vector3(0.0f, 0.0f, -0.03f));
@@ -277,7 +325,7 @@ void Player::Splits()
 	else
 	{
 		// 股を戻す
-		if (pos.y < 0.6f)
+		if (!m_isJump && pos.y < 0.6f)
 		{
 			m_parts[PARTS_BODY].SetTranslate(pos + Vector3(0.0f, 0.02f, 0.0f));
 			m_parts[PARTS_LEFTFOOT].SetRotate(angleLeft + Vector3(0.0f, 0.0f, 0.03f));
@@ -378,6 +426,22 @@ void Player::Update()
 		// 股割りする
 		Splits();
 	}
+
+	// ジャンプ中
+	if (m_isJump)
+	{
+		m_velocity.y -= GRAVITY_ACC;
+
+		// 速度制限
+		if (m_velocity.y <= -FALL_SPEED_MAX)
+		{
+			m_velocity.y = -FALL_SPEED_MAX;
+		}
+	}
+
+	Vector3 trans = m_parts[PARTS_BODY].GetTranslate();
+	trans += m_velocity;
+	m_parts[PARTS_BODY].SetTranslate(trans);
 
 	// 発射されたパーツの処理
 	if (m_isFire)

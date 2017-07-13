@@ -202,6 +202,7 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 	// 自機が地面に立つ処理
+	if (m_player->GetVelocity().y <= 0.0f)
 	{
 		// 自機の頭から足元への線分
 		Segment playerSegment;
@@ -220,6 +221,14 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			// y座標のみ交点の位置に移動
 			trans.y = inter.y;
+
+			// 落下終了
+			m_player->StopJump();
+		}
+		else
+		{
+			// 落下させる
+			m_player->StartFall();
 		}
 
 		// 自機の移動
@@ -325,6 +334,13 @@ void Game::Update(DX::StepTimer const& timer)
 				{
 					if (Player::m_isFire)	m_player->ResetBurret();
 					else					m_player->FireBurret();
+				}
+
+				// Shiftキーが押されたらジャンプ
+				if (m_keyboardTracker->IsKeyPressed(Keyboard::Keys::LeftShift) || m_keyboardTracker->IsKeyPressed(Keyboard::Keys::RightShift))
+				{
+					m_player->SetState(Player::STATE_JUMP, true);
+					m_player->StartJump();
 				}
 			}
 			else
